@@ -74,6 +74,15 @@ it('keeps every feature in its own folder', () => {
 });
 ```
 
+## Stack choices stay in the app
+
+These rules name concerns, never libraries (ADR 0007). Each app writes its own stack ADR from `templates/stack.md`, pins
+its own dependencies, and passes its packages to the gates:
+
+```ts
+webLayers({ root: 'apps/web/src', store: [], serverData: ['@tanstack/react-query'], router: ['react-router'], apiClient: ['openapi-fetch'] })
+```
+
 ## Changing a rule
 
 1. Open a PR here: the rule, its ADR (new or amended), the gate change, a CHANGELOG entry.

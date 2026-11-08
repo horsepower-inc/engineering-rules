@@ -7,9 +7,10 @@ function esc(text) {
 
 /**
  * @param {{ root: string, shared?: string, severity?: 'error' | 'warn', pureFolder?: string,
- *           frameworkModules?: string[] }} options
+ *           frameworkModules?: string[] }} options  frameworkModules: path patterns of the app's framework, database and
+ *           queue packages from its stack ADR (ADR 0007), e.g. ['^@nestjs/', '^kysely']; domain/ may import none of them.
  */
-function featureRules({ root, shared = 'shared', severity = 'error', pureFolder = 'domain', frameworkModules = ['^@nestjs/', '^kysely', '^pg$', '^ioredis', '^bullmq'] }) {
+function featureRules({ root, shared = 'shared', severity = 'error', pureFolder = 'domain', frameworkModules = [] }) {
   const r = esc(root);
   const s = esc(shared);
   return [

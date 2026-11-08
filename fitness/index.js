@@ -134,20 +134,24 @@ export function noDirectDriverImports({
   return problems;
 }
 
-/** ADR 0005. Components and model files import no store, query library, API or router; pages import no API client or query library. */
+/**
+ * ADR 0005. Components and model files import no store, server-state library, API client or router; pages import no API
+ * client or server-state library. The package names come from the app's stack ADR (ADR 0007); nothing is built in except
+ * the app's own `/api/` folder.
+ */
 export function webLayers({
   root,
-  store = ['react-redux', '@reduxjs/toolkit', 'zustand'],
-  query = ['@tanstack/react-query', 'openapi-react-query'],
-  router = ['react-router', 'react-router-dom'],
-  api = ['/api/', 'openapi-fetch'],
+  store = [],
+  serverData = [],
+  router = [],
+  apiClient = [],
   cwd = process.cwd(),
 }) {
   const problems = [];
   const rules = [
-    { layer: '/components/', banned: [...store, ...query, ...router, ...api] },
-    { layer: '/model/', banned: [...store, ...query, ...router, ...api, 'react'] },
-    { layer: '/pages/', banned: ['openapi-fetch', ...query] },
+    { layer: '/components/', banned: [...store, ...serverData, ...router, ...apiClient, '/api/'] },
+    { layer: '/model/', banned: [...store, ...serverData, ...router, ...apiClient, '/api/', 'react'] },
+    { layer: '/pages/', banned: [...apiClient, ...serverData] },
   ];
   for (const file of sourceFiles(root, { cwd })) {
     const rule = rules.find((r) => file.includes(r.layer));
