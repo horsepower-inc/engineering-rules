@@ -1,4 +1,4 @@
-// dependency-cruiser rules for ADR 0001 (features, not layers). Spread into `forbidden` of .dependency-cruiser.cjs.
+// dependency-cruiser rules for ADR 0001 (features, not layers) and ADR 0008 (ports and adapters). Spread into `forbidden` of .dependency-cruiser.cjs.
 // `root` is the service source folder relative to the repository root, e.g. 'apps/api/src'.
 
 function esc(text) {
@@ -8,7 +8,7 @@ function esc(text) {
 /**
  * @param {{ root: string, shared?: string, severity?: 'error' | 'warn', pureFolder?: string,
  *           frameworkModules?: string[] }} options  frameworkModules: path patterns of the app's framework, database and
- *           queue packages from its stack ADR (ADR 0007), e.g. ['^@nestjs/', '^kysely']; domain/ may import none of them.
+ *           queue packages from its stack ADR (ADR 0008), e.g. ['^@nestjs/', '^kysely']; domain/ may import none of them.
  */
 function featureRules({ root, shared = 'shared', severity = 'error', pureFolder = 'domain', frameworkModules = [] }) {
   const r = esc(root);
@@ -50,4 +50,20 @@ function featureRules({ root, shared = 'shared', severity = 'error', pureFolder 
   ];
 }
 
-module.exports = { featureRules };
+/**
+ * dependency-cruiser rules for ADR 0008 (factory projects: ports and adapters). `root` is the source folder, e.g. 'src'.
+ * @param {{ root?: string, severity?: 'error' | 'warn' }} options
+ */
+function portsAndAdaptersRules({ root = 'src', severity = 'error' } = {}) {
+  const r = esc(root);
+  const rule = (name, comment, from, to) => ({ name, comment: `ADR 0008: ${comment}`, severity, from, to });
+  return [
+    rule('core-imports-no-outer-layer', 'core/ is pure and imports no outer layer.', { path: `^${r}/core/` }, { path: `^${r}/(app|adapters|plugins|cli)/` }),
+    rule('app-imports-no-adapter', 'app/ reaches I/O only through ports (contract tests excepted).', { path: `^${r}/app/`, pathNot: '\\.contract\\.test\\.ts$' }, { path: `^${r}/(adapters|plugins|cli)/` }),
+    rule('adapter-imports-no-app', 'an adapter implements a port and imports no use case or plugin.', { path: `^${r}/adapters/` }, { path: `^${r}/(app|plugins|cli)/` }),
+    rule('plugin-imports-no-app', 'a plugin implements a port and imports no use case or adapter.', { path: `^${r}/plugins/` }, { path: `^${r}/(app|adapters|cli)/` }),
+    rule('nothing-imports-main', 'main.ts is the only composition root.', { path: `^${r}/` }, { path: `^${r}/main\\.ts$` }),
+  ];
+}
+
+module.exports = { featureRules, portsAndAdaptersRules };
