@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Copies the shared text rules (adr/, agents/, templates/) into the project's .rules/ and, with --agents, writes
-// agents/AGENTS.base.md between markers in the project's AGENTS.md. --check compares instead of writing and exits 1 on
+// agents/AGENTS.base.md plus the chosen profile (agents/profiles/<profile>.md, default `service`) between markers in the
+// project's AGENTS.md. --check compares instead of writing and exits 1 on
 // drift. Runs from the installed package: no network.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -9,19 +10,21 @@ import { fileURLToPath } from 'node:url';
 const BEGIN = '<!-- engineering-rules:begin -->';
 const END = '<!-- engineering-rules:end -->';
 const FOLDERS = ['adr', 'agents', 'templates'];
+const DEFAULT_PROFILE = 'service';
 
 export function parseArgs(argv) {
-  const args = { check: false, agents: null, target: '.rules', cwd: process.cwd() };
+  const args = { check: false, agents: null, profile: DEFAULT_PROFILE, target: '.rules', cwd: process.cwd() };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--check') args.check = true;
     else if (a === '--agents') args.agents = argv[++i];
+    else if (a === '--profile') args.profile = argv[++i];
     else if (a === '--target') args.target = argv[++i];
     else if (a === '--cwd') args.cwd = argv[++i];
     else if (a === '--help' || a === '-h') args.help = true;
     else throw new Error(`unknown argument: ${a}`);
   }
-  if (args.agents === undefined || args.target === undefined || args.cwd === undefined) throw new Error('missing value');
+  if ([args.agents, args.profile, args.target, args.cwd].includes(undefined)) throw new Error('missing value');
   return args;
 }
 
@@ -44,8 +47,16 @@ export function expected(source) {
   return out;
 }
 
-export function agentsBlock(source) {
-  return `${BEGIN}\n${readFileSync(join(source, 'agents', 'AGENTS.base.md'), 'utf8').trimEnd()}\n${END}`;
+/** The profiles this version ships: the file names under agents/profiles/ without `.md`. */
+export function profiles(source) {
+  return files(join(source, 'agents', 'profiles')).map((f) => f.split(/[\\/]/u).pop().replace(/\.md$/u, '')).sort();
+}
+
+export function agentsBlock(source, profile = DEFAULT_PROFILE) {
+  if (!profiles(source).includes(profile)) throw new Error(`unknown profile: ${profile} (have: ${profiles(source).join(', ')})`);
+  const base = readFileSync(join(source, 'agents', 'AGENTS.base.md'), 'utf8').trimEnd();
+  const extra = readFileSync(join(source, 'agents', 'profiles', `${profile}.md`), 'utf8').trimEnd();
+  return `${BEGIN}\n${base}\n\n${extra}\n${END}`;
 }
 
 /** AGENTS.md with the shared block inserted or replaced. A file without markers gets the block at the top. */
@@ -57,7 +68,7 @@ export function withBlock(text, block) {
   return `${block}\n\n${text}`;
 }
 
-export function sync({ source, cwd, target, agents, check }) {
+export function sync({ source, cwd, target, agents, check, profile = DEFAULT_PROFILE }) {
   const want = expected(source);
   const dir = resolve(cwd, target);
   const drift = [];
@@ -68,7 +79,7 @@ export function sync({ source, cwd, target, agents, check }) {
   if (agents) {
     const path = resolve(cwd, agents);
     const current = existsSync(path) ? readFileSync(path, 'utf8') : '';
-    agentsText = withBlock(current, agentsBlock(source));
+    agentsText = withBlock(current, agentsBlock(source, profile));
     if (agentsText !== current) drift.push(`${agents} (engineering-rules block)`);
   }
   if (check || drift.length === 0) return drift;
@@ -86,13 +97,13 @@ if (isMain) {
   try {
     const args = parseArgs(process.argv.slice(2));
     if (args.help) {
-      console.log('rules-sync [--check] [--agents AGENTS.md] [--target .rules] [--cwd <dir>]');
+      console.log('rules-sync [--check] [--agents AGENTS.md] [--profile service|factory] [--target .rules] [--cwd <dir>]');
       process.exit(0);
     }
     const source = resolve(dirname(fileURLToPath(import.meta.url)), '..');
     const drift = sync({ source, ...args });
     if (args.check && drift.length) {
-      console.error(`rules-sync: out of date with the pinned engineering-rules version:\n  ${drift.join('\n  ')}\nRun: pnpm exec rules-sync${args.agents ? ` --agents ${args.agents}` : ''}`);
+      console.error(`rules-sync: out of date with the pinned engineering-rules version:\n  ${drift.join('\n  ')}\nRun: pnpm exec rules-sync${args.agents ? ` --agents ${args.agents}` : ''}${args.profile !== DEFAULT_PROFILE ? ` --profile ${args.profile}` : ''}`);
       process.exit(1);
     }
     console.log(args.check ? 'rules-sync: up to date' : drift.length ? `rules-sync: updated ${drift.length} file(s)` : 'rules-sync: already up to date');
