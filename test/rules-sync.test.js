@@ -49,3 +49,20 @@ test('parseArgs rejects unknown and missing values', () => {
   assert.throws(() => parseArgs(['--nope']), /unknown argument/u);
   assert.throws(() => parseArgs(['--agents']), /missing value/u);
 });
+
+test('the CLI runs when started through a symlink, as package-manager bin shims do', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const { symlinkSync, mkdirSync } = await import('node:fs');
+  const cwd = mkdtempSync(join(tmpdir(), 'sync-'));
+  const link = join(cwd, 'node_modules', 'engineering-rules');
+  mkdirSync(dirname(link), { recursive: true });
+  symlinkSync(source, link, 'dir');
+  const cli = join(link, 'bin', 'rules-sync.mjs');
+  const check = spawnSync(process.execPath, [cli, '--check'], { cwd, encoding: 'utf8' });
+  assert.equal(check.status, 1, 'a missing .rules is drift');
+  assert.match(check.stderr, /out of date/u);
+  const write = spawnSync(process.execPath, [cli], { cwd, encoding: 'utf8' });
+  assert.equal(write.status, 0);
+  assert.ok(existsSync(join(cwd, '.rules/VERSION')));
+  assert.equal(spawnSync(process.execPath, [cli, '--check'], { cwd, encoding: 'utf8' }).status, 0);
+});
