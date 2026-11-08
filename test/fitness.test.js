@@ -87,16 +87,30 @@ test('noDirectDriverImports allows the gateway only', () => {
   ]);
 });
 
-test('webLayers keeps components and model free of store, router and api', () => {
+test('webLayers keeps components and model free of store, query library, router and api', () => {
   const cwd = project({
     'src/features/viewer/components/panel.tsx': "import { useSelector } from 'react-redux';",
+    'src/features/viewer/components/list.tsx': "import { useQuery } from '@tanstack/react-query';",
     'src/features/viewer/model/filter.ts': "import { useState } from 'react';",
-    'src/features/viewer/pages/viewer.page.tsx': "import { useParams } from 'react-router';",
-    'src/features/viewer/state/viewer.slice.ts': "import { createSlice } from '@reduxjs/toolkit';",
+    'src/features/viewer/pages/viewer.page.tsx': "import { useParams } from 'react-router';\nimport { useSession } from '../api/session.js';",
+    'src/features/viewer/api/session.ts': "import { useQuery } from '@tanstack/react-query';",
+    'src/features/viewer/state/upload.reducer.ts': "export const reducer = (s) => s;",
   });
   assert.deepEqual(webLayers({ root: 'src', cwd }), [
+    'src/features/viewer/components/list.tsx: components imports @tanstack/react-query',
     'src/features/viewer/components/panel.tsx: components imports react-redux',
     'src/features/viewer/model/filter.ts: model imports react',
+  ]);
+});
+
+test('webLayers keeps pages off the query library and the client', () => {
+  const cwd = project({
+    'src/features/teams/pages/teams.page.tsx': "import { useQuery } from '@tanstack/react-query';",
+    'src/features/users/pages/users.page.tsx': "import $api from 'openapi-react-query';",
+  });
+  assert.deepEqual(webLayers({ root: 'src', cwd }), [
+    'src/features/teams/pages/teams.page.tsx: pages imports @tanstack/react-query',
+    'src/features/users/pages/users.page.tsx: pages imports openapi-react-query',
   ]);
 });
 

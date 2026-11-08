@@ -25,7 +25,7 @@ breaks a project silently.
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v1.0.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.0.0"
 
 # 2. Copy ADRs, agent rules and templates into .rules/ (commit the result)
 pnpm exec rules-sync --agents AGENTS.md

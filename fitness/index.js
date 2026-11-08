@@ -134,19 +134,20 @@ export function noDirectDriverImports({
   return problems;
 }
 
-/** ADR 0005. Components and model files import no store, API or router; pages import no API client. */
+/** ADR 0005. Components and model files import no store, query library, API or router; pages import no API client or query library. */
 export function webLayers({
   root,
-  store = ['react-redux', '@reduxjs/toolkit'],
+  store = ['react-redux', '@reduxjs/toolkit', 'zustand'],
+  query = ['@tanstack/react-query', 'openapi-react-query'],
   router = ['react-router', 'react-router-dom'],
   api = ['/api/', 'openapi-fetch'],
   cwd = process.cwd(),
 }) {
   const problems = [];
   const rules = [
-    { layer: '/components/', banned: [...store, ...router, ...api] },
-    { layer: '/model/', banned: [...store, ...router, ...api, 'react'] },
-    { layer: '/pages/', banned: ['openapi-fetch'] },
+    { layer: '/components/', banned: [...store, ...query, ...router, ...api] },
+    { layer: '/model/', banned: [...store, ...query, ...router, ...api, 'react'] },
+    { layer: '/pages/', banned: ['openapi-fetch', ...query] },
   ];
   for (const file of sourceFiles(root, { cwd })) {
     const rule = rules.find((r) => file.includes(r.layer));
