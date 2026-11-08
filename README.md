@@ -25,7 +25,7 @@ breaks a project silently.
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v1.0.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.0.0"
 
 # 2. Copy ADRs, agent rules and templates into .rules/ (commit the result)
 pnpm exec rules-sync --agents AGENTS.md
@@ -72,6 +72,15 @@ import { featureShape } from '@horsepower/engineering-rules/fitness';
 it('keeps every feature in its own folder', () => {
   expect(featureShape({ root: 'apps/api/src', shared: 'shared', entryFiles: ['main.ts', 'worker.ts', 'ops.ts', 'app.module.ts'] })).toEqual([]);
 });
+```
+
+## Stack choices stay in the app
+
+These rules name concerns, never libraries (ADR 0007). Each app writes its own stack ADR from `templates/stack.md`, pins
+its own dependencies, and passes its packages to the gates:
+
+```ts
+webLayers({ root: 'apps/web/src', store: [], serverData: ['@tanstack/react-query'], router: ['react-router'], apiClient: ['openapi-fetch'] })
 ```
 
 ## Changing a rule

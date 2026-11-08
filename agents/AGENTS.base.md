@@ -12,7 +12,7 @@ stop and ask. The decisions behind them are in `.rules/adr/`.
    stays with the caller.
 4. In a feature: the controller translates HTTP, the service runs the use case and owns the transaction, `domain/` is
    pure, `adapters/` do the I/O, the policy decides access.
-5. Web apps: `pages/` compose, `components/` render from props, `state/` holds store and flows, `api/` talks to the
+5. Web apps: `pages/` compose, `components/` render from props, `state/` holds reducers, flows and any shared store, `api/` talks to the
    server, `model/` is pure (ADR 0005).
 
 ### Access, AI and data
