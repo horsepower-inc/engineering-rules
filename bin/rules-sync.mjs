@@ -2,7 +2,7 @@
 // Copies the shared text rules (adr/, agents/, templates/) into the project's .rules/ and, with --agents, writes
 // agents/AGENTS.base.md between markers in the project's AGENTS.md. --check compares instead of writing and exits 1 on
 // drift. Runs from the installed package: no network.
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -81,7 +81,9 @@ export function sync({ source, cwd, target, agents, check }) {
   return drift;
 }
 
-const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+// Package managers start bins through a symlink (node_modules/.bin, node_modules/@scope/pkg); Node resolves
+// import.meta.url to the real path, so compare real paths or the CLI silently does nothing.
+const isMain = process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isMain) {
   try {
     const args = parseArgs(process.argv.slice(2));

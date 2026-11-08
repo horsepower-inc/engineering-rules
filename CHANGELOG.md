@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.1 (2026-11-08)
+
+- Fix: `rules-sync` did nothing when started through a package-manager bin (`pnpm exec rules-sync`, `node_modules/.bin`):
+  the entry check compared the symlinked path with Node's real path, so the CLI wrote no files and `--check` always
+  exited 0. It now compares real paths. Projects on v2.0.0 should upgrade: their CI drift check never ran.
+
 ## v2.0.0 (2026-11-08)
 
 Concerns, not libraries (ADR 0007).
