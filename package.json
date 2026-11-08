@@ -1,0 +1,21 @@
+{
+  "name": "@horsepower/engineering-rules",
+  "version": "1.0.0",
+  "description": "Shared engineering rules: ADRs, agent instructions, fitness checks and lint, import and API-docs presets.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": { "type": "git", "url": "git+https://github.com/horsepower-inc/engineering-rules.git" },
+  "engines": { "node": ">=22" },
+  "bin": { "rules-sync": "bin/rules-sync.mjs" },
+  "exports": {
+    "./fitness": "./fitness/index.js",
+    "./eslint": "./presets/eslint/index.js",
+    "./dependency-cruiser": "./presets/dependency-cruiser/index.cjs",
+    "./spectral": "./presets/spectral/api-docs.yaml",
+    "./package.json": "./package.json"
+  },
+  "files": ["adr", "agents", "templates", "fitness", "presets", "bin", "README.md", "CHANGELOG.md"],
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

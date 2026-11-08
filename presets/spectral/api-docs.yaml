@@ -1,0 +1,101 @@
+# ADR 0004: the OpenAPI documentation standard. Use in a project's .spectral.yaml:
+#   extends: ['./node_modules/@horsepower/engineering-rules/presets/spectral/api-docs.yaml']
+# A project may override `severity` per rule to `warn` while it fills the gaps; the target is `error`.
+extends: [[spectral:oas, recommended]]
+rules:
+  info-contact: error
+  info-description: error
+  operation-description: error
+  operation-operationId: error
+  operation-tags: error
+  operation-tag-defined: error
+  tag-description: error
+
+  rules-info-terms:
+    description: info has terms of service or a licence (the reader must know the terms of use).
+    severity: error
+    given: $.info
+    then:
+      function: schema
+      functionOptions:
+        schema: { anyOf: [{ required: [termsOfService] }, { required: [license] }] }
+
+  rules-versioned-server:
+    description: Server URLs carry a major version (/v1).
+    severity: error
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions: { match: '/v[0-9]+/?$' }
+
+  rules-operation-summary:
+    description: Every operation has a one-line summary.
+    severity: error
+    given: $.paths[*][get,put,post,patch,delete]
+    then: { field: summary, function: truthy }
+
+  rules-operation-id-camel:
+    description: operationId is camelCase.
+    severity: error
+    given: $.paths[*][get,put,post,patch,delete].operationId
+    then: { function: casing, functionOptions: { type: camel } }
+
+  rules-parameter-description:
+    description: Every parameter is described.
+    severity: error
+    given: ['$.paths[*].parameters[*]', '$.paths[*][get,put,post,patch,delete].parameters[*]', '$.components.parameters[*]']
+    then: { field: description, function: truthy }
+
+  rules-parameter-example:
+    description: Every parameter has an example.
+    severity: error
+    given: ['$.paths[*].parameters[*]', '$.paths[*][get,put,post,patch,delete].parameters[*]', '$.components.parameters[*]']
+    then:
+      function: schema
+      functionOptions:
+        schema: { anyOf: [{ required: [example] }, { required: [examples] }, { properties: { schema: { required: [example] } }, required: [schema] }] }
+
+  rules-request-example:
+    description: Every request body has an example.
+    severity: error
+    given: $.paths[*][*].requestBody.content[*]
+    then:
+      function: schema
+      functionOptions:
+        schema: { anyOf: [{ required: [example] }, { required: [examples] }] }
+
+  rules-response-example:
+    description: Every successful response with a body has an example.
+    severity: error
+    given: $.paths[*][*].responses[?(@property.match(/^2/))].content[?(@property != 'application/octet-stream')]
+    then:
+      function: schema
+      functionOptions:
+        schema: { anyOf: [{ required: [example] }, { required: [examples] }] }
+
+  rules-error-problem-json:
+    description: 4xx and 5xx responses are application/problem+json.
+    severity: error
+    given: $.components.responses[*].content
+    then:
+      function: schema
+      functionOptions:
+        schema: { type: object, minProperties: 1 }
+
+  rules-schema-description:
+    description: Every named schema is described.
+    severity: error
+    given: $.components.schemas[*]
+    then: { field: description, function: truthy }
+
+  rules-property-description:
+    description: Every property is described.
+    severity: error
+    given: $.components.schemas..properties[*]
+    then: { field: description, function: truthy }
+
+  rules-security-defined:
+    description: The document declares how to authenticate.
+    severity: error
+    given: $.components
+    then: { field: securitySchemes, function: truthy }
