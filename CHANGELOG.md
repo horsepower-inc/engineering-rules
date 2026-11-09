@@ -1,14 +1,62 @@
 # Changelog
 
-## v2.1.0 (2026-11-08)
+## v2.3.0 (2026-11-09)
 
 - Profiles: `agents/AGENTS.base.md` keeps the rules for every project; `agents/profiles/service.md` holds the web-app and
-  API-service rules (v2.0.0 text, renumbered from 8); `agents/profiles/factory.md` is new.
-- ADR 0008: factory projects (the orchestrator, the tracker, operator tooling) use ports and adapters, not feature folders.
+  API-service rules (the v2.2.1 "Where code goes", "Access, AI and data" and "API contract" rules, renumbered from 10); `agents/profiles/factory.md` is new.
+- ADR 0010: factory projects (the orchestrator, the tracker, operator tooling) use ports and adapters, not feature folders.
 - dependency-cruiser preset `portsAndAdaptersRules({ root, severity })`; it names no package.
 - `rules-sync --profile service|factory` (default `service`).
+- `agents/AGENTS.base.md` keeps rules 1–9 for every project: data and secrets, working, shared modules and review (ADR 0009, from v2.2.0). Profile rules start at 10.
 - Commit rule: a one-line conventional subject; a body and trailers may follow.
 - Upgrading a service project: bump the pin and run `rules-sync --agents AGENTS.md` once; its AGENTS.md block is regrouped.
+
+## v2.2.1 (2026-11-09)
+
+- ADR 0008 rule 14 and `agents/lanes/web.md` rule 15: a page "matches its design" by structure (regions, order,
+  grouping, hierarchy), components and content, not by equal computed styles. A few pixels of shift or a different
+  line break is accepted; a broken grouping, order or emphasis is not. Style values are accepted once per
+  design-system component; structure is tested with accessibility-tree snapshots per designed state; screenshot
+  baselines are regression guards taken after acceptance. Wording only: no option or check changes.
+
+## v2.2.0 (2026-11-09)
+
+Shared modules and placement review (ADR 0009). Additive: no existing option or rule changes; the new presets add rules
+only where a project calls them.
+
+- New ADR 0009: each cross-cutting concern (outside HTTP calls and the API client with retries and token refresh, auth,
+  logging and metrics, errors, configuration, time and time zones, ids, persistence, jobs, model calls, validation) has
+  one home, recorded in the app's stack ADR. Features use it and never rebuild it; a missing capability goes into the
+  home. A home exists from its first caller.
+- New `agents/review.md` (synced to `.rules/agents/review.md`): the placement checklist P1–P14 for every reviewer. A
+  placement finding in a new or changed line is a blocker; untouched lines are not reported.
+- `agents/AGENTS.base.md`: section "Shared modules and review", rules 17 and 18 (rules 1–16 keep their numbers).
+- `templates/stack.md`: a "Shared modules" table (home per concern for api and web, packages only the home imports) and
+  the new gate options. ADR 0007 rule 3 names it. `templates/pull-request.md`: a placement checkbox.
+- New dependency-cruiser preset `sharedModuleRules({ root, modules, severity })`: a concern's packages are imported only
+  in its home.
+- New ESLint preset `httpRules({ files, client })`: no `fetch` or `XMLHttpRequest` outside the HTTP or API client home.
+
+## v2.1.0 (2026-11-09)
+
+UI and design system (ADR 0008). Additive: no existing option or rule changes.
+
+- New ADR 0008: every UI is built from one design system. Tokens are the only source of visual values and generate the
+  theme; components come from the design-system package on an accessible behaviour library, with closed APIs and scoped
+  styles; layout components and a column grid place everything; every interaction is animated with motion tokens;
+  one formatting module formats dates and numbers; a page is done when it matches its design in a browser, with
+  screenshot baselines and flow tests. No library is named.
+- `agents/lanes/web.md` rules 9–15 and a pointer in `agents/AGENTS.base.md` rule 5.
+- `templates/stack.md`: rows for UI components, styling and theme, layout and tables, motion, formatting, style checks
+  and browser tests; gate options for the two new checks. ADR 0007 lists the UI concerns.
+- New ESLint preset `uiRules({ files, designSystem, formatModule, behaviour })`.
+- New fitness check `tokenReferences({ dirs, tokens, allowPrefixes })`; `sourceFiles` takes an optional `pattern`.
+
+## v2.0.1 (2026-11-08)
+
+- Fix: `rules-sync` did nothing when started through a package-manager bin (`pnpm exec rules-sync`, `node_modules/.bin`):
+  the entry check compared the symlinked path with Node's real path, so the CLI wrote no files and `--check` always
+  exited 0. It now compares real paths. Projects on v2.0.0 should upgrade: their CI drift check never ran.
 
 ## v2.0.0 (2026-11-08)
 

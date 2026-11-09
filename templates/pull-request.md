@@ -9,7 +9,8 @@ One paragraph: the change and why.
 - [ ] Model calls only through the AI gateway (ADR 0003)
 - [ ] Contract updated with descriptions, examples and error codes (ADR 0004)
 - [ ] Web: pages compose, components render, state and api separate (ADR 0005)
-- [ ] Factory: core pure, app over ports, adapters and plugins do the I/O, nothing imports main (ADR 0008)
+- [ ] Factory: core pure, app over ports, adapters and plugins do the I/O, nothing imports main (ADR 0010)
+- [ ] Cross-cutting work uses its shared module: HTTP, auth, logging, time, config, jobs, model calls (ADR 0009, `.rules/agents/review.md`)
 
 ## Tests
 

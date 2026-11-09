@@ -1,4 +1,4 @@
-// dependency-cruiser rules for ADR 0001 (features, not layers) and ADR 0008 (ports and adapters). Spread into `forbidden` of .dependency-cruiser.cjs.
+// dependency-cruiser rules for ADR 0001 (features, not layers), ADR 0009 (shared modules) and ADR 0010 (ports and adapters). Spread into `forbidden` of .dependency-cruiser.cjs.
 // `root` is the service source folder relative to the repository root, e.g. 'apps/api/src'.
 
 function esc(text) {
@@ -8,7 +8,7 @@ function esc(text) {
 /**
  * @param {{ root: string, shared?: string, severity?: 'error' | 'warn', pureFolder?: string,
  *           frameworkModules?: string[] }} options  frameworkModules: path patterns of the app's framework, database and
- *           queue packages from its stack ADR (ADR 0008), e.g. ['^@nestjs/', '^kysely']; domain/ may import none of them.
+ *           queue packages from its stack ADR (ADR 0007), e.g. ['^@nestjs/', '^kysely']; domain/ may import none of them.
  */
 function featureRules({ root, shared = 'shared', severity = 'error', pureFolder = 'domain', frameworkModules = [] }) {
   const r = esc(root);
@@ -51,12 +51,36 @@ function featureRules({ root, shared = 'shared', severity = 'error', pureFolder 
 }
 
 /**
- * dependency-cruiser rules for ADR 0008 (factory projects: ports and adapters). `root` is the source folder, e.g. 'src'.
+ * ADR 0009: the packages of a cross-cutting concern are imported only in that concern's home.
+ * @param {{ root: string, severity?: 'error' | 'warn',
+ *           modules: { name: string, home: string[], packages: string[] }[] }} options
+ *   home: path prefixes relative to the repository root (e.g. 'apps/api/src/shared/providers/logger/');
+ *   packages: the concern's package names from the app's stack ADR (e.g. 'pino'). A module without packages adds no rule.
+ */
+function sharedModuleRules({ root, modules, severity = 'error' }) {
+  const r = esc(root);
+  return modules
+    .filter((m) => m.packages.length > 0)
+    .map((m) => {
+      if (m.home.length === 0) throw new Error(`sharedModuleRules: ${m.name} has packages but no home`);
+      return {
+        name: `shared-module-${m.name}`,
+        comment: `ADR 0009: ${m.name} is done by its shared module (${m.home.join(', ')}); use it, do not import its packages.`,
+        severity,
+        from: { path: `^${r}/`, pathNot: m.home.map((h) => `^${esc(h)}`) },
+        to: { path: m.packages.map((name) => `(^|node_modules/)${esc(name)}(/|$)`) },
+      };
+    });
+}
+
+
+/**
+ * dependency-cruiser rules for ADR 0010 (factory projects: ports and adapters). `root` is the source folder, e.g. 'src'.
  * @param {{ root?: string, severity?: 'error' | 'warn' }} options
  */
 function portsAndAdaptersRules({ root = 'src', severity = 'error' } = {}) {
   const r = esc(root);
-  const rule = (name, comment, from, to) => ({ name, comment: `ADR 0008: ${comment}`, severity, from, to });
+  const rule = (name, comment, from, to) => ({ name, comment: `ADR 0010: ${comment}`, severity, from, to });
   return [
     rule('core-imports-no-outer-layer', 'core/ is pure and imports no outer layer.', { path: `^${r}/core/` }, { path: `^${r}/(app|adapters|plugins|cli)/` }),
     rule('app-imports-no-adapter', 'app/ reaches I/O only through ports (contract tests excepted).', { path: `^${r}/app/`, pathNot: '\\.contract\\.test\\.ts$' }, { path: `^${r}/(adapters|plugins|cli)/` }),
@@ -66,4 +90,4 @@ function portsAndAdaptersRules({ root = 'src', severity = 'error' } = {}) {
   ];
 }
 
-module.exports = { featureRules, portsAndAdaptersRules };
+module.exports = { featureRules, sharedModuleRules, portsAndAdaptersRules };

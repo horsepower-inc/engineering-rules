@@ -18,3 +18,12 @@ sections in this file add to both. When they seem to conflict, stop and ask. The
 6. Never weaken or disable a gate to make it pass. Fix the cause.
 7. Commit messages: a one-line conventional subject (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`). A body
    and trailers (`Refs: PB-12`, `Co-Authored-By:`) may follow after a blank line.
+
+### Shared modules and review
+
+8. Cross-cutting work has one home per concern, listed in the app's stack ADR (ADR 0009): outside HTTP calls and the API
+   client (timeouts, retries, token refresh), auth, logging and metrics, errors, configuration, time and time zones, ids,
+   persistence, jobs, model calls, validation. A feature uses the home and never rebuilds it; if the home lacks
+   something, extend the home in the same change or stop and ask.
+9. Reviews check every new or changed line against `.rules/agents/review.md` (is the code in the right place?). A
+   placement finding in a new or changed line is a blocker, the same as a bug.

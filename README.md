@@ -13,11 +13,12 @@ breaks a project silently.
 | --- | --- |
 | `adr/` | Organisation-wide ADRs. A project's own ADRs may add to them, never contradict them. |
 | `agents/AGENTS.base.md` | Rules every coding agent follows (Claude Code, Codex, factory workers). |
-| `agents/profiles/` | Rules per kind of project: `service` (web apps and API services, ADR 0001) and `factory` (the software factory: orchestrator, tracker, operator tooling, ADR 0008). |
-| `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md`. |
+| `agents/profiles/` | Rules per kind of project: `service` (web apps and API services, ADR 0001) and `factory` (the software factory: orchestrator, tracker, operator tooling, ADR 0010). |
+| `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md` (including the UI and design-system rules of ADR 0008). |
+| `agents/review.md` | The placement checklist every reviewer applies to new and changed lines (ADR 0009). |
 | `fitness/` | Reusable architecture checks, called from a project's tests. |
-| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers). |
-| `presets/dependency-cruiser/` | Feature isolation rules (`featureRules`, ADR 0001) and ports-and-adapters layers (`portsAndAdaptersRules`, ADR 0008), parameterised by the project's paths. |
+| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules, HTTP only through its client). |
+| `presets/dependency-cruiser/` | Feature isolation rules (ADR 0001), shared-module homes (ADR 0009) and ports-and-adapters layers (`portsAndAdaptersRules`, ADR 0010), parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
 | `templates/` | ADR and pull-request templates. |
 | `bin/rules-sync.mjs` | Copies the text rules into a project's `.rules/` and checks them in CI. |
@@ -26,7 +27,7 @@ breaks a project silently.
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.1.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.3.0"
 
 # 2. Copy ADRs, agent rules and templates into .rules/ (commit the result); a factory project adds --profile factory
 pnpm exec rules-sync --agents AGENTS.md
@@ -58,16 +59,54 @@ export default [
 ```
 
 ```js
+// eslint.config.js, web apps (ADR 0008): the app's own libraries come from its stack ADR
+import { uiRules } from '@horsepower/engineering-rules/eslint';
+export default [
+  ...uiRules({
+    files: ['apps/web/src/**/*.{ts,tsx}', 'packages/ui/src/**/*.{ts,tsx}'],
+    designSystem: ['packages/ui/**'],
+    formatModule: ['packages/format/**'],
+    behaviour: ['react-aria-components', '@tanstack/react-table'],
+  }),
+];
+```
+
+```ts
+// packages/ui/src/tokens/token-references.test.ts (ADR 0008 rule 3)
+import { tokenReferences } from '@horsepower/engineering-rules/fitness';
+it('names only existing tokens', () => {
+  expect(tokenReferences({ dirs: ['apps/web/src', 'packages/ui/src'], tokens: tokenNames, allowPrefixes: ['ca-'] })).toEqual([]);
+});
+```
+
+```js
 // .dependency-cruiser.cjs
 const { featureRules } = require('@horsepower/engineering-rules/dependency-cruiser');
 module.exports = { forbidden: [...featureRules({ root: 'apps/api/src', shared: 'shared' })] };
 ```
 
 ```js
-// .dependency-cruiser.cjs in a factory project (ADR 0008)
+// .dependency-cruiser.cjs in a factory project (ADR 0010)
 const { portsAndAdaptersRules } = require('@horsepower/engineering-rules/dependency-cruiser');
 module.exports = { forbidden: [...portsAndAdaptersRules({ root: 'src' })] };
 ```
+
+```js
+// .dependency-cruiser.cjs (ADR 0009): each concern's packages only in its home, from the stack ADR's "Shared modules"
+const { sharedModuleRules } = require('@horsepower/engineering-rules/dependency-cruiser');
+module.exports = { forbidden: [...sharedModuleRules({ root: 'apps/api/src', modules: [
+  { name: 'logging', home: ['apps/api/src/shared/providers/logger/'], packages: ['pino'] },
+  { name: 'queue', home: ['apps/api/src/shared/providers/queue/', 'apps/api/src/shared/testing/'], packages: ['bullmq'] },
+] })] };
+```
+
+```js
+// eslint.config.js (ADR 0009): HTTP only through the client home
+import { httpRules } from '@horsepower/engineering-rules/eslint';
+export default [...httpRules({ files: ['apps/web/src/**/*.{ts,tsx}'], client: ['apps/web/src/shared/api/**'] })];
+```
+
+Review agents load `.rules/agents/review.md` and report a placement finding in a new or changed line as a blocker.
 
 ```yaml
 # .spectral.yaml
