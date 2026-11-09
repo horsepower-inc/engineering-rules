@@ -40,3 +40,12 @@ stop and ask. The decisions behind them are in `.rules/adr/`.
 14. No refactors, renames or "while at it" changes outside the task. Propose them separately.
 15. Never weaken or disable a gate to make it pass. Fix the cause.
 16. Commit messages: one line, conventional (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`).
+
+### Shared modules and review
+
+17. Cross-cutting work has one home per concern, listed in the app's stack ADR (ADR 0009): outside HTTP calls and the API
+    client (timeouts, retries, token refresh), auth, logging and metrics, errors, configuration, time and time zones, ids,
+    persistence, jobs, model calls, validation. A feature uses the home and never rebuilds it; if the home lacks
+    something, extend the home in the same change or stop and ask.
+18. Reviews check every new or changed line against `.rules/agents/review.md` (is the code in the right place?). A
+    placement finding in a new or changed line is a blocker, the same as a bug.

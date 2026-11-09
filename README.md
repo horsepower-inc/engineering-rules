@@ -14,9 +14,10 @@ breaks a project silently.
 | `adr/` | Organisation-wide ADRs. A project's own ADRs may add to them, never contradict them. |
 | `agents/AGENTS.base.md` | Rules every coding agent follows (Claude Code, Codex, factory workers). |
 | `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md` (including the UI and design-system rules of ADR 0008). |
+| `agents/review.md` | The placement checklist every reviewer applies to new and changed lines (ADR 0009). |
 | `fitness/` | Reusable architecture checks, called from a project's tests. |
-| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules). |
-| `presets/dependency-cruiser/` | Feature isolation rules, parameterised by the project's paths. |
+| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules, HTTP only through its client). |
+| `presets/dependency-cruiser/` | Feature isolation rules and shared-module homes, parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
 | `templates/` | ADR and pull-request templates. |
 | `bin/rules-sync.mjs` | Copies the text rules into a project's `.rules/` and checks them in CI. |
@@ -25,7 +26,7 @@ breaks a project silently.
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.0.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.2.0"
 
 # 2. Copy ADRs, agent rules and templates into .rules/ (commit the result)
 pnpm exec rules-sync --agents AGENTS.md
@@ -81,6 +82,23 @@ it('names only existing tokens', () => {
 const { featureRules } = require('@horsepower/engineering-rules/dependency-cruiser');
 module.exports = { forbidden: [...featureRules({ root: 'apps/api/src', shared: 'shared' })] };
 ```
+
+```js
+// .dependency-cruiser.cjs (ADR 0009): each concern's packages only in its home, from the stack ADR's "Shared modules"
+const { sharedModuleRules } = require('@horsepower/engineering-rules/dependency-cruiser');
+module.exports = { forbidden: [...sharedModuleRules({ root: 'apps/api/src', modules: [
+  { name: 'logging', home: ['apps/api/src/shared/providers/logger/'], packages: ['pino'] },
+  { name: 'queue', home: ['apps/api/src/shared/providers/queue/', 'apps/api/src/shared/testing/'], packages: ['bullmq'] },
+] })] };
+```
+
+```js
+// eslint.config.js (ADR 0009): HTTP only through the client home
+import { httpRules } from '@horsepower/engineering-rules/eslint';
+export default [...httpRules({ files: ['apps/web/src/**/*.{ts,tsx}'], client: ['apps/web/src/shared/api/**'] })];
+```
+
+Review agents load `.rules/agents/review.md` and report a placement finding in a new or changed line as a blocker.
 
 ```yaml
 # .spectral.yaml

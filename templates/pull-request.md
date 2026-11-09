@@ -9,6 +9,7 @@ One paragraph: the change and why.
 - [ ] Model calls only through the AI gateway (ADR 0003)
 - [ ] Contract updated with descriptions, examples and error codes (ADR 0004)
 - [ ] Web: pages compose, components render, state and api separate (ADR 0005)
+- [ ] Cross-cutting work uses its shared module: HTTP, auth, logging, time, config, jobs, model calls (ADR 0009, `.rules/agents/review.md`)
 
 ## Tests
 

@@ -10,5 +10,6 @@
 | [0006](0006-shared-rules.md) | Engineering rules live in one public repo and are pinned per project |
 | [0007](0007-stack-per-app.md) | Each app covers every concern with an existing library and records its own stack |
 | [0008](0008-ui-design-system.md) | Every UI is built from one design system: tokens, generated theme, closed components, layout, motion and one formatting module |
+| [0009](0009-shared-modules.md) | Cross-cutting work has one shared module, features use it, and review checks where code is placed |
 
-New ADRs use `templates/adr.md`; an app's stack record uses `templates/stack.md`. Project ADRs live in the project and may add to these, never contradict them.
+New ADRs use `templates/adr.md`; an app's stack record uses `templates/stack.md`. Reviewers check placement with `agents/review.md`. Project ADRs live in the project and may add to these, never contradict them.

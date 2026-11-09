@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.2.0 (2026-11-09)
+
+Shared modules and placement review (ADR 0009). Additive: no existing option or rule changes; the new presets add rules
+only where a project calls them.
+
+- New ADR 0009: each cross-cutting concern (outside HTTP calls and the API client with retries and token refresh, auth,
+  logging and metrics, errors, configuration, time and time zones, ids, persistence, jobs, model calls, validation) has
+  one home, recorded in the app's stack ADR. Features use it and never rebuild it; a missing capability goes into the
+  home. A home exists from its first caller.
+- New `agents/review.md` (synced to `.rules/agents/review.md`): the placement checklist P1–P14 for every reviewer. A
+  placement finding in a new or changed line is a blocker; untouched lines are not reported.
+- `agents/AGENTS.base.md`: section "Shared modules and review", rules 17 and 18 (rules 1–16 keep their numbers).
+- `templates/stack.md`: a "Shared modules" table (home per concern for api and web, packages only the home imports) and
+  the new gate options. ADR 0007 rule 3 names it. `templates/pull-request.md`: a placement checkbox.
+- New dependency-cruiser preset `sharedModuleRules({ root, modules, severity })`: a concern's packages are imported only
+  in its home.
+- New ESLint preset `httpRules({ files, client })`: no `fetch` or `XMLHttpRequest` outside the HTTP or API client home.
+
 ## v2.1.0 (2026-11-09)
 
 UI and design system (ADR 0008). Additive: no existing option or rule changes.
