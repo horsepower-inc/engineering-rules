@@ -49,3 +49,8 @@ stop and ask. The decisions behind them are in `.rules/adr/`.
     something, extend the home in the same change or stop and ask.
 18. Reviews check every new or changed line against `.rules/agents/review.md` (is the code in the right place?). A
     placement finding in a new or changed line is a blocker, the same as a bug.
+
+### Acceptance
+
+19. A feature's criteria live in `docs/acceptance/<feature>.md`, each with exactly one check (ADR 0010). A ticket that works
+    towards criteria names them in one `Feature acceptance: <ids>` line; a bug names one in a `Fixes: <id>` line.

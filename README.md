@@ -19,7 +19,7 @@ breaks a project silently.
 | `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules, HTTP only through its client). |
 | `presets/dependency-cruiser/` | Feature isolation rules and shared-module homes, parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
-| `templates/` | ADR and pull-request templates. |
+| `templates/` | ADR, stack, acceptance, epic and pull-request templates. |
 | `bin/rules-sync.mjs` | Copies the text rules into a project's `.rules/` and checks them in CI. |
 
 ## Using it in a project
