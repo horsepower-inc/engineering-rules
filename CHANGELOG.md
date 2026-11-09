@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.3.0 (unreleased)
+## v2.3.0 (2026-11-09)
 
 Acceptance per feature (ADR 0010). Additive: no gate changes.
 
