@@ -13,7 +13,8 @@ stop and ask. The decisions behind them are in `.rules/adr/`.
 4. In a feature: the controller translates HTTP, the service runs the use case and owns the transaction, `domain/` is
    pure, `adapters/` do the I/O, the policy decides access.
 5. Web apps: `pages/` compose, `components/` render from props, `state/` holds reducers, flows and any shared store, `api/` talks to the
-   server, `model/` is pure (ADR 0005).
+   server, `model/` is pure (ADR 0005). The UI is built from the design system: tokens, generated theme, closed
+   components, layout components, motion tokens and one formatting module (ADR 0008).
 
 ### Access, AI and data
 

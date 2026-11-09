@@ -10,6 +10,7 @@ import {
   maxLines,
   noDirectDriverImports,
   noRoleChecks,
+  tokenReferences,
   webLayers,
 } from '../fitness/index.js';
 
@@ -139,4 +140,17 @@ test('maxLines reports long files that match', () => {
 test('test files are not scanned by default', () => {
   const cwd = project({ 'src/reports/reports.service.test.ts': "if (u.role === 'coach') {}" });
   assert.deepEqual(noRoleChecks({ dirs: ['src'], cwd }), []);
+});
+
+test('tokenReferences reports unknown tokens in CSS and TSX, allowing tokens, prefixes and local variables', () => {
+  const cwd = project({
+    'src/card.css': '.ca-card { padding: var(--space-5); margin: var(--space-4); color: var(--ca-card-ink); }',
+    'src/local.css': '.ca-x { --ca-x-gap: 4px; --own: 1px; gap: var(--own); }',
+    'src/view.tsx': "export const v = <div className=\"p-[var(--accent)]\" />;",
+    'src/ok.ts': "export const s = 'var(--space-4)';",
+  });
+  assert.deepEqual(tokenReferences({ dirs: ['src'], tokens: ['--space-4', 'space-1'], allowPrefixes: ['ca-'], cwd }), [
+    'src/card.css: unknown token --space-5',
+    'src/view.tsx: unknown token --accent',
+  ]);
 });

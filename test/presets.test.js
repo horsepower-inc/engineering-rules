@@ -34,3 +34,29 @@ test('featureRules builds the four rules with the escaped root and $1 back-refer
   assert.ok(rules[0].to.pathNot.includes('^apps/api/src/$1/'));
   assert.ok(new RegExp(rules[0].to.pathNot[1]).test('apps/api/src/reports/index.ts'));
 });
+
+test('uiRules bans locale formatting outside the format module and styling outside the design system', async () => {
+  const { uiRules } = await import('../presets/eslint/index.js');
+  const [format, outside] = uiRules({
+    files: ['src/**/*.tsx'],
+    designSystem: 'packages/ui/**',
+    formatModule: ['packages/format/**'],
+    behaviour: ['react-aria-components'],
+  });
+  assert.deepEqual(format.ignores, ['packages/format/**']);
+  const [, ...properties] = format.rules['no-restricted-properties'];
+  assert.ok(properties.some((p) => p.property === 'toLocaleDateString' && p.object === undefined));
+  assert.ok(properties.some((p) => p.object === 'Intl' && p.property === 'NumberFormat'));
+  assert.deepEqual(outside.ignores, ['packages/ui/**']);
+  const [, imports] = outside.rules['no-restricted-imports'];
+  assert.equal(imports.paths[0].name, 'react-aria-components');
+  assert.deepEqual(imports.patterns[0].group, ['react-aria-components/*']);
+  const [, ...selectors] = outside.rules['no-restricted-syntax'];
+  assert.equal(selectors.length, 2);
+});
+
+test('uiRules without behaviour packages adds no import rule', async () => {
+  const { uiRules } = await import('../presets/eslint/index.js');
+  const [, outside] = uiRules({ files: ['src/**/*.tsx'] });
+  assert.equal(outside.rules['no-restricted-imports'], undefined);
+});

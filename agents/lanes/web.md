@@ -12,5 +12,24 @@ In addition to `AGENTS.base.md`.
 4. Components render from props and emit events; they never import the store, the API client or the router.
 5. Pure view logic (filters, grouping, status mapping) lives in `model/` with unit tests.
 6. Styles come from the design-system package and stylesheet files; no inline `<style>` elements (strict CSP).
+   Pages use the package's components and layout; they set no visual value of their own (ADR 0008).
 7. Every user-visible string is translated in every supported language in the same change.
 8. Links to another of our hosts use a same-origin path or runtime configuration, never a hardcoded host.
+
+## UI and design system (ADR 0008)
+
+9. Every visual value is a token. No colour literals, pixel sizes, weights, z-indexes, durations, arbitrary utility
+   values, `!important` or theme variants (`dark:`) in app code; a missing token is added to the token file, never
+   worked around.
+10. Use the design-system component. Never import the behaviour or table library in app code, never pass `className`
+    or `style` to a design-system component; if no variant fits, stop and ask for one in the package.
+11. Place things with the layout components (page, page header, grid, split, stack, cluster, form layout, panel). One
+    `<main>`, one `h1` per page; nothing scrolls sideways at 390 px.
+12. Dialogs, menus and toasts come from the package. Destructive actions confirm in a dialog; only the confirming
+    button uses the destructive colour.
+13. Every interaction state change is animated with the motion tokens, through the package; reduced motion is
+    already handled there.
+14. Format dates, times, durations, numbers, percentages and ratios only through the formatting module, with the
+    user's locale; never call `toLocale…` or `Intl` formatters directly.
+15. A page change is done when the page matches its design in a browser in both themes, every language, desktop and
+    phone width; update its screenshot baselines on purpose, with the reason in the PR.
