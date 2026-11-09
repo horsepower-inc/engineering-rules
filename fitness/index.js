@@ -7,7 +7,7 @@ const SOURCE = /\.(ts|tsx|js|jsx|mjs|cjs)$/u;
 const TEST = /\.(test|spec)\.(ts|tsx|js|jsx|mjs)$|\.test-d\.ts$/u;
 
 /** All source files under `dir` (relative to `cwd`), skipping node_modules, dist and test files unless asked. */
-export function sourceFiles(dir, { cwd = process.cwd(), tests = false } = {}) {
+export function sourceFiles(dir, { cwd = process.cwd(), tests = false, pattern = SOURCE } = {}) {
   const base = join(cwd, dir);
   if (!existsSync(base)) return [];
   const out = [];
@@ -16,7 +16,7 @@ export function sourceFiles(dir, { cwd = process.cwd(), tests = false } = {}) {
       if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.')) continue;
       const full = join(path, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (SOURCE.test(entry.name) && (tests || !TEST.test(entry.name))) out.push(relative(cwd, full).split(sep).join('/'));
+      else if (pattern.test(entry.name) && (tests || !TEST.test(entry.name))) out.push(relative(cwd, full).split(sep).join('/'));
     }
   };
   walk(base);
@@ -179,3 +179,26 @@ export function maxLines({ dirs, globs, max, cwd = process.cwd() }) {
   return problems;
 }
 
+
+const STYLED = /\.(css|ts|tsx|js|jsx)$/u;
+
+/**
+ * ADR 0008 rule 3. Every `var(--name)` in stylesheets and components under `dirs` names a token from `tokens` or starts
+ * with one of `allowPrefixes` (component-local variables such as `ca-`). Variables a file defines itself are allowed.
+ */
+export function tokenReferences({ dirs, tokens, allowPrefixes = [], cwd = process.cwd() }) {
+  const known = new Set(tokens.map((name) => name.replace(/^--/u, '')));
+  const problems = [];
+  for (const dir of dirs) {
+    for (const file of sourceFiles(dir, { cwd, pattern: STYLED })) {
+      const text = readFileSync(join(cwd, file), 'utf8');
+      const local = new Set([...text.matchAll(/(?:^|[\s;{'"])--([a-z0-9-]+)\s*:/gmu)].map((m) => m[1]));
+      for (const match of text.matchAll(/var\(\s*--([a-z0-9-]+)/gu)) {
+        const name = match[1];
+        if (known.has(name) || local.has(name) || allowPrefixes.some((prefix) => name.startsWith(prefix))) continue;
+        problems.push(`${file}: unknown token --${name}`);
+      }
+    }
+  }
+  return [...new Set(problems)];
+}

@@ -13,9 +13,9 @@ breaks a project silently.
 | --- | --- |
 | `adr/` | Organisation-wide ADRs. A project's own ADRs may add to them, never contradict them. |
 | `agents/AGENTS.base.md` | Rules every coding agent follows (Claude Code, Codex, factory workers). |
-| `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md`. |
+| `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md` (including the UI and design-system rules of ADR 0008). |
 | `fitness/` | Reusable architecture checks, called from a project's tests. |
-| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers). |
+| `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules). |
 | `presets/dependency-cruiser/` | Feature isolation rules, parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
 | `templates/` | ADR and pull-request templates. |
@@ -53,6 +53,27 @@ export default [
   ...accessRules({ files: ['apps/api/src/**/*.ts'], allow: ['**/*.policy.ts', 'apps/api/src/shared/auth/**'] }),
   ...aiGatewayRules({ files: ['apps/api/src/**/*.ts'], gateway: 'apps/api/src/shared/ai/**', drivers: ['**/shared/ai/drivers/**', '@ca/outbound/models'] }),
 ];
+```
+
+```js
+// eslint.config.js, web apps (ADR 0008): the app's own libraries come from its stack ADR
+import { uiRules } from '@horsepower/engineering-rules/eslint';
+export default [
+  ...uiRules({
+    files: ['apps/web/src/**/*.{ts,tsx}', 'packages/ui/src/**/*.{ts,tsx}'],
+    designSystem: ['packages/ui/**'],
+    formatModule: ['packages/format/**'],
+    behaviour: ['react-aria-components', '@tanstack/react-table'],
+  }),
+];
+```
+
+```ts
+// packages/ui/src/tokens/token-references.test.ts (ADR 0008 rule 3)
+import { tokenReferences } from '@horsepower/engineering-rules/fitness';
+it('names only existing tokens', () => {
+  expect(tokenReferences({ dirs: ['apps/web/src', 'packages/ui/src'], tokens: tokenNames, allowPrefixes: ['ca-'] })).toEqual([]);
+});
 ```
 
 ```js

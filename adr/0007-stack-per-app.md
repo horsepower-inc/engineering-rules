@@ -10,8 +10,8 @@ not by hand, and that each app writes its choices down where agents and reviewer
 
 ## Decision
 
-1. The shared rules name **concerns** (server data, shared client state, multi-step work, routing, forms, i18n, HTTP
-   framework, database access, queues, validation, testing, observability) and the layer rules around them. They never
+1. The shared rules name **concerns** (server data, shared client state, multi-step work, routing, forms, i18n, UI components,
+   styling, tables, motion, formatting, HTTP framework, database access, queues, validation, testing, observability) and the layer rules around them. They never
    name a library, framework or version.
 2. Each app covers each concern it has with an **existing, maintained library or framework**, not with hand-written
    infrastructure. Hand-written code for a concern is allowed only when the stack ADR says why no library fits.

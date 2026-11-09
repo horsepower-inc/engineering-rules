@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.1.0 (2026-11-09)
+
+UI and design system (ADR 0008). Additive: no existing option or rule changes.
+
+- New ADR 0008: every UI is built from one design system. Tokens are the only source of visual values and generate the
+  theme; components come from the design-system package on an accessible behaviour library, with closed APIs and scoped
+  styles; layout components and a column grid place everything; every interaction is animated with motion tokens;
+  one formatting module formats dates and numbers; a page is done when it matches its design in a browser, with
+  screenshot baselines and flow tests. No library is named.
+- `agents/lanes/web.md` rules 9–15 and a pointer in `agents/AGENTS.base.md` rule 5.
+- `templates/stack.md`: rows for UI components, styling and theme, layout and tables, motion, formatting, style checks
+  and browser tests; gate options for the two new checks. ADR 0007 lists the UI concerns.
+- New ESLint preset `uiRules({ files, designSystem, formatModule, behaviour })`.
+- New fitness check `tokenReferences({ dirs, tokens, allowPrefixes })`; `sourceFiles` takes an optional `pattern`.
+
 ## v2.0.1 (2026-11-08)
 
 - Fix: `rules-sync` did nothing when started through a package-manager bin (`pnpm exec rules-sync`, `node_modules/.bin`):
