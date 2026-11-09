@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.3.0 (unreleased)
+
+Acceptance per feature (ADR 0010). Additive: no gate changes.
+
+- New ADR 0010: each feature has one acceptance file with criteria (id, outcome, failure paths, exactly one check of kind
+  e2e, api, metric or manual) and a Monitor list; each epic has one spec with criteria roles, Improve and Guard measures and
+  an effect window (default 14 days). Tickets name criteria with `Feature acceptance:`; a bug with `Fixes:`.
+- New templates `templates/acceptance.md` and `templates/epic.md`: YAML front matter is the parsed part, the body is prose.
+- `agents/AGENTS.base.md` rule 19.
+
 ## v2.2.1 (2026-11-09)
 
 - ADR 0008 rule 14 and `agents/lanes/web.md` rule 15: a page "matches its design" by structure (regions, order,
