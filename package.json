@@ -1,6 +1,6 @@
 {
   "name": "@horsepower/engineering-rules",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Shared engineering rules: ADRs, agent instructions, fitness checks and lint, import and API-docs presets.",
   "type": "module",
   "license": "UNLICENSED",

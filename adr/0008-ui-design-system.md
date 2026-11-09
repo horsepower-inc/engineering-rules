@@ -74,10 +74,25 @@ formatting module: pure functions, no UI dependency, shared by every renderer (a
 13. **Accessibility is part of the component:** WCAG 2.2 AA contrast for every token pair, a visible focus ring on
     every focusable element, full keyboard use, text sizes in rem with a minimum size, status never shown by colour
     alone.
-14. **A page is done when it matches its design in a browser.** After a page is built or changed, it is compared with
-    its design in a real browser (both themes, every language, desktop and phone width), then its designed states get
-    screenshot baselines. The most important user flows have end-to-end browser tests with their failure paths and a
-    phone-width run.
+14. **A page is done when it matches its design in a browser.** The design is an abstraction and the product is a grid,
+    a design system and a component library, so "matches" means the same structure, components and content, not equal
+    computed styles:
+    - **Structure:** the same regions in the same order, the same grouping, the same hierarchy (heading levels, one
+      primary action), placed on the grid, and the designed stacking order on a phone.
+    - **Components:** the design-system component and variant the design uses in each place.
+    - **Content:** the designed copy in every language and values formatted by the formatting module.
+
+    A few pixels of shift, a width that follows the grid or a different line break is accepted. A group split apart or
+    merged, text set as a run of lines without its grouping, a different order or emphasis, a missing or extra control
+    or a different component is not. Style values (weights, colours, borders, spacing) are accepted once per
+    design-system component with component tests, not per page. Behaviour is a separate list tested by end-to-end
+    flows.
+
+    Structure is tested with an accessibility-tree snapshot per designed state (landmarks, headings, groups, controls
+    and text, without pixels). After a page is built or changed, it is reviewed against its design in a real browser
+    (both themes, every language, desktop and phone width). Once accepted, its designed states get screenshot baselines
+    as regression guards, not as the acceptance test. The most important user flows have end-to-end browser tests with
+    their failure paths and a phone-width run.
 
 ## Enforcement
 
@@ -88,7 +103,7 @@ formatting module: pure functions, no UI dependency, shared by every renderer (a
   component-local prefix (rule 3).
 - Project gates, configured per stack: a style linter for literal values (rule 3), a test that component stylesheet
   selectors carry their prefix (rule 6), a drift test for the generated theme (rules 1–2), contrast tests for token
-  pairs (rule 13), a browser check that no route scrolls sideways at 390 px (rule 7), screenshot baselines and flow
+  pairs (rule 13), a browser check that no route scrolls sideways at 390 px (rule 7), structure snapshots, screenshot baselines and flow
   tests (rule 14).
 - Rules 8–11 have no generic gate: the closed component API (rule 5) makes them the package's job, and the package's
   component tests cover each state.

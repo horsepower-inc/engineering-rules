@@ -32,4 +32,7 @@ In addition to `AGENTS.base.md`.
 14. Format dates, times, durations, numbers, percentages and ratios only through the formatting module, with the
     user's locale; never call `toLocale…` or `Intl` formatters directly.
 15. A page change is done when the page matches its design in a browser in both themes, every language, desktop and
-    phone width; update its screenshot baselines on purpose, with the reason in the PR.
+    phone width. Matching means the same structure (regions, order, grouping, hierarchy), components and content, not
+    equal pixels or computed styles; keep its structure snapshots passing, test behaviour with flows, and update its
+    screenshot baselines on purpose, with the reason in the PR. A wrong style value is fixed in the component, not on
+    the page.
