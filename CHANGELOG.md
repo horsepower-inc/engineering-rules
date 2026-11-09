@@ -6,7 +6,10 @@ Acceptance per feature (ADR 0010). Additive: no gate changes.
 
 - New ADR 0010: each feature has one acceptance file with criteria (id, outcome, failure paths, exactly one check of kind
   e2e, api, metric or manual) and a Monitor list; each epic has one spec with criteria roles, Improve and Guard measures and
-  an effect window (default 14 days). Tickets name criteria with `Feature acceptance:`; a bug with `Fixes:`.
+  an effect window (default 14 days). An epic has a kind (`feature`, `work`) and a key for the criteria it owns, written in
+  full in the epic file. An epic closes when its criteria's checks pass and are recorded; Improve and Guard measures are
+  judged after release and never reopen it (a missed Guard opens a bug). Monitor entries have a kind (`usage`, `health`,
+  `outcome`). Tickets name criteria with `Feature acceptance:`; a bug with `Fixes:`.
 - New templates `templates/acceptance.md` and `templates/epic.md`: YAML front matter is the parsed part, the body is prose.
 - `agents/AGENTS.base.md` rule 19.
 

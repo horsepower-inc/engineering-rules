@@ -43,12 +43,14 @@ criteria:
       owner: design session
       looks_at: the mail in the two main clients, DE and EN
 monitor:
-  - measure: invite_first_signin_within_24h_ratio
+  - kind: outcome               # usage | health | outcome
+    measure: invite_first_signin_within_24h_ratio
     what: Share of invites whose coach signs in within 24 hours
     source: posthog
     target: ">= 0.7"
     display: { chart: line, window_days: 30 }
-  - measure: invite_mail_failures_total
+  - kind: health
+    measure: invite_mail_failures_total
     what: Invite mails that could not be delivered
     source: grafana
     target: "0 per day"
