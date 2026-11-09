@@ -13,21 +13,21 @@ breaks a project silently.
 | --- | --- |
 | `adr/` | Organisation-wide ADRs. A project's own ADRs may add to them, never contradict them. |
 | `agents/AGENTS.base.md` | Rules every coding agent follows (Claude Code, Codex, factory workers). |
-| `agents/profiles/` | Rules per kind of project: `service` (web apps and API services, ADR 0001) and `factory` (the software factory: orchestrator, tracker, operator tooling, ADR 0010). |
+| `agents/profiles/` | Rules per kind of project: `service` (web apps and API services, ADR 0001) and `factory` (the software factory: orchestrator, tracker, operator tooling, ADR 0011). |
 | `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md` (including the UI and design-system rules of ADR 0008). |
 | `agents/review.md` | The placement checklist every reviewer applies to new and changed lines (ADR 0009). |
 | `fitness/` | Reusable architecture checks, called from a project's tests. |
 | `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules, HTTP only through its client). |
-| `presets/dependency-cruiser/` | Feature isolation rules (ADR 0001), shared-module homes (ADR 0009) and ports-and-adapters layers (`portsAndAdaptersRules`, ADR 0010), parameterised by the project's paths. |
+| `presets/dependency-cruiser/` | Feature isolation rules (ADR 0001), shared-module homes (ADR 0009) and ports-and-adapters layers (`portsAndAdaptersRules`, ADR 0011), parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
-| `templates/` | ADR and pull-request templates. |
+| `templates/` | ADR, stack, acceptance, epic and pull-request templates. |
 | `bin/rules-sync.mjs` | Copies the text rules into a project's `.rules/` and checks them in CI. |
 
 ## Using it in a project
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.3.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.4.0"
 
 # 2. Copy ADRs, agent rules and templates into .rules/ (commit the result); a factory project adds --profile factory
 pnpm exec rules-sync --agents AGENTS.md
@@ -86,7 +86,7 @@ module.exports = { forbidden: [...featureRules({ root: 'apps/api/src', shared: '
 ```
 
 ```js
-// .dependency-cruiser.cjs in a factory project (ADR 0010)
+// .dependency-cruiser.cjs in a factory project (ADR 0011)
 const { portsAndAdaptersRules } = require('@horsepower/engineering-rules/dependency-cruiser');
 module.exports = { forbidden: [...portsAndAdaptersRules({ root: 'src' })] };
 ```

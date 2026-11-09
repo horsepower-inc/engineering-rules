@@ -1,4 +1,4 @@
-# ADR 0010: Factory projects use ports and adapters, not feature folders
+# ADR 0011: Factory projects use ports and adapters, not feature folders
 
 Status: accepted (2026-11-08)
 
@@ -32,8 +32,8 @@ layer rules do not already give.
    tokens, cost, duration and outcome are.
 5. ADRs 0002, 0004 and 0005 apply to the parts of a factory project that serve HTTP routes or a web app; ADR 0001 does
    not apply. A factory project's web dashboard (for example the tracker's `web/`) keeps its own layout until a later
-   ADR covers it. ADR 0008 (UI and design system) applies to that dashboard, and ADR 0009 (shared modules) to every
-   factory project.
+   ADR covers it. ADR 0008 (UI and design system) applies to that dashboard, ADR 0009 (shared modules) and ADR 0010
+   (acceptance per feature) to every factory project.
 
 ## Enforcement
 

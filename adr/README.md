@@ -11,8 +11,9 @@
 | [0007](0007-stack-per-app.md) | Each app covers every concern with an existing library and records its own stack |
 | [0008](0008-ui-design-system.md) | Every UI is built from one design system: tokens, generated theme, closed components, layout, motion and one formatting module |
 | [0009](0009-shared-modules.md) | Cross-cutting work has one shared module, features use it, and review checks where code is placed |
-| [0010](0010-factory-ports-and-adapters.md) | Factory projects use ports and adapters, not feature folders |
+| [0010](0010-acceptance-per-feature.md) | Acceptance is defined per feature and verified per epic |
+| [0011](0011-factory-ports-and-adapters.md) | Factory projects use ports and adapters, not feature folders |
 
-ADR 0001 applies to the `service` profile, ADR 0010 to the `factory` profile; ADR 0007 and ADR 0009 apply to every app, and the others to both profiles where the project has routes or a web app.
+ADR 0001 applies to the `service` profile, ADR 0011 to the `factory` profile; ADR 0007, ADR 0009 and ADR 0010 apply to every app, and the others to both profiles where the project has routes or a web app.
 
 New ADRs use `templates/adr.md`; an app's stack record uses `templates/stack.md`. Reviewers check placement with `agents/review.md`. Project ADRs live in the project and may add to these, never contradict them.

@@ -35,7 +35,7 @@ test('featureRules builds the four rules with the escaped root and $1 back-refer
   assert.ok(new RegExp(rules[0].to.pathNot[1]).test('apps/api/src/reports/index.ts'));
 });
 
-test('portsAndAdaptersRules holds the ADR 0010 import direction and spares contract tests', () => {
+test('portsAndAdaptersRules holds the ADR 0011 import direction and spares contract tests', () => {
   const rules = portsAndAdaptersRules({ root: 'src', severity: 'warn' });
   assert.deepEqual(rules.map((r) => r.name), [
     'core-imports-no-outer-layer',

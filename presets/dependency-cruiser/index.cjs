@@ -1,4 +1,4 @@
-// dependency-cruiser rules for ADR 0001 (features, not layers), ADR 0009 (shared modules) and ADR 0010 (ports and adapters). Spread into `forbidden` of .dependency-cruiser.cjs.
+// dependency-cruiser rules for ADR 0001 (features, not layers), ADR 0009 (shared modules) and ADR 0011 (ports and adapters). Spread into `forbidden` of .dependency-cruiser.cjs.
 // `root` is the service source folder relative to the repository root, e.g. 'apps/api/src'.
 
 function esc(text) {
@@ -75,12 +75,12 @@ function sharedModuleRules({ root, modules, severity = 'error' }) {
 
 
 /**
- * dependency-cruiser rules for ADR 0010 (factory projects: ports and adapters). `root` is the source folder, e.g. 'src'.
+ * dependency-cruiser rules for ADR 0011 (factory projects: ports and adapters). `root` is the source folder, e.g. 'src'.
  * @param {{ root?: string, severity?: 'error' | 'warn' }} options
  */
 function portsAndAdaptersRules({ root = 'src', severity = 'error' } = {}) {
   const r = esc(root);
-  const rule = (name, comment, from, to) => ({ name, comment: `ADR 0010: ${comment}`, severity, from, to });
+  const rule = (name, comment, from, to) => ({ name, comment: `ADR 0011: ${comment}`, severity, from, to });
   return [
     rule('core-imports-no-outer-layer', 'core/ is pure and imports no outer layer.', { path: `^${r}/core/` }, { path: `^${r}/(app|adapters|plugins|cli)/` }),
     rule('app-imports-no-adapter', 'app/ reaches I/O only through ports (contract tests excepted).', { path: `^${r}/app/`, pathNot: '\\.contract\\.test\\.ts$' }, { path: `^${r}/(adapters|plugins|cli)/` }),

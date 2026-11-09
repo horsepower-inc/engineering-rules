@@ -1,15 +1,28 @@
 # Changelog
 
-## v2.3.0 (2026-11-09)
+## v2.4.0 (2026-11-09)
 
 - Profiles: `agents/AGENTS.base.md` keeps the rules for every project; `agents/profiles/service.md` holds the web-app and
-  API-service rules (the v2.2.1 "Where code goes", "Access, AI and data" and "API contract" rules, renumbered from 10); `agents/profiles/factory.md` is new.
-- ADR 0010: factory projects (the orchestrator, the tracker, operator tooling) use ports and adapters, not feature folders.
+  API-service rules (the v2.2.1 "Where code goes", "Access, AI and data" and "API contract" rules, renumbered from 10, now from 11); `agents/profiles/factory.md` is new.
+- ADR 0011: factory projects (the orchestrator, the tracker, operator tooling) use ports and adapters, not feature folders.
 - dependency-cruiser preset `portsAndAdaptersRules({ root, severity })`; it names no package.
 - `rules-sync --profile service|factory` (default `service`).
-- `agents/AGENTS.base.md` keeps rules 1–9 for every project: data and secrets, working, shared modules and review (ADR 0009, from v2.2.0). Profile rules start at 10.
+- `agents/AGENTS.base.md` keeps rules 1–10 for every project: data and secrets, working, shared modules and review (ADR 0009), acceptance (ADR 0010). Profile rules start at 11.
 - Commit rule: a one-line conventional subject; a body and trailers may follow.
 - Upgrading a service project: bump the pin and run `rules-sync --agents AGENTS.md` once; its AGENTS.md block is regrouped.
+
+## v2.3.0 (2026-11-09)
+
+Acceptance per feature (ADR 0010). Additive: no gate changes.
+
+- New ADR 0010: each feature has one acceptance file with criteria (id, outcome, failure paths, exactly one check of kind
+  e2e, api, metric or manual) and a Monitor list; each epic has one spec with criteria roles, Improve and Guard measures and
+  an effect window (default 14 days). An epic has a kind (`feature`, `work`) and a key for the criteria it owns, written in
+  full in the epic file. An epic closes when its criteria's checks pass and are recorded; Improve and Guard measures are
+  judged after release and never reopen it (a missed Guard opens a bug). Monitor entries have a kind (`usage`, `health`,
+  `outcome`). Tickets name criteria with `Feature acceptance:`; a bug with `Fixes:`.
+- New templates `templates/acceptance.md` and `templates/epic.md`: YAML front matter is the parsed part, the body is prose.
+- `agents/AGENTS.base.md` rule 19.
 
 ## v2.2.1 (2026-11-09)
 
