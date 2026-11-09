@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.4.0 (2026-11-09)
+
+- Profiles: `agents/AGENTS.base.md` keeps the rules for every project; `agents/profiles/service.md` holds the web-app and
+  API-service rules (the v2.2.1 "Where code goes", "Access, AI and data" and "API contract" rules, renumbered from 10, now from 11); `agents/profiles/factory.md` is new.
+- ADR 0011: factory projects (the orchestrator, the tracker, operator tooling) use ports and adapters, not feature folders.
+- dependency-cruiser preset `portsAndAdaptersRules({ root, severity })`; it names no package.
+- `rules-sync --profile service|factory` (default `service`).
+- `agents/AGENTS.base.md` keeps rules 1–10 for every project: data and secrets, working, shared modules and review (ADR 0009), acceptance (ADR 0010). Profile rules start at 11.
+- Commit rule: a one-line conventional subject; a body and trailers may follow.
+- Upgrading a service project: bump the pin and run `rules-sync --agents AGENTS.md` once; its AGENTS.md block is regrouped.
+
 ## v2.3.0 (2026-11-09)
 
 Acceptance per feature (ADR 0010). Additive: no gate changes.

@@ -50,6 +50,27 @@ test('parseArgs rejects unknown and missing values', () => {
   assert.throws(() => parseArgs(['--agents']), /missing value/u);
 });
 
+test('the factory profile writes the base rules and the factory rules, not the service rules', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'sync-'));
+  writeFileSync(join(cwd, 'AGENTS.md'), '# Project\n');
+  sync({ source, cwd, target: '.rules', agents: 'AGENTS.md', check: false, profile: 'factory' });
+  const agents = readFileSync(join(cwd, 'AGENTS.md'), 'utf8');
+  assert.match(agents, /## Engineering rules/u);
+  assert.match(agents, /## Profile: factory/u);
+  assert.doesNotMatch(agents, /## Profile: service/u);
+  assert.deepEqual(sync({ source, cwd, target: '.rules', agents: 'AGENTS.md', check: true, profile: 'factory' }), []);
+  assert.deepEqual(sync({ source, cwd, target: '.rules', agents: 'AGENTS.md', check: true }), ['AGENTS.md (engineering-rules block)']);
+});
+
+test('the default profile is service and an unknown profile is refused', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'sync-'));
+  sync({ source, cwd, target: '.rules', agents: 'AGENTS.md', check: false });
+  assert.match(readFileSync(join(cwd, 'AGENTS.md'), 'utf8'), /## Profile: service/u);
+  assert.throws(() => sync({ source, cwd, target: '.rules', agents: 'AGENTS.md', check: true, profile: 'web' }), /unknown profile: web/u);
+  assert.equal(parseArgs(['--profile', 'factory']).profile, 'factory');
+  assert.throws(() => parseArgs(['--profile']), /missing value/u);
+});
+
 test('the CLI runs when started through a symlink, as package-manager bin shims do', async () => {
   const { spawnSync } = await import('node:child_process');
   const { symlinkSync, mkdirSync } = await import('node:fs');

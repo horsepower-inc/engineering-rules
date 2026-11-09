@@ -13,11 +13,12 @@ breaks a project silently.
 | --- | --- |
 | `adr/` | Organisation-wide ADRs. A project's own ADRs may add to them, never contradict them. |
 | `agents/AGENTS.base.md` | Rules every coding agent follows (Claude Code, Codex, factory workers). |
+| `agents/profiles/` | Rules per kind of project: `service` (web apps and API services, ADR 0001) and `factory` (the software factory: orchestrator, tracker, operator tooling, ADR 0011). |
 | `agents/lanes/` | Extra rules per kind of work: `api.md`, `web.md` (including the UI and design-system rules of ADR 0008). |
 | `agents/review.md` | The placement checklist every reviewer applies to new and changed lines (ADR 0009). |
 | `fitness/` | Reusable architecture checks, called from a project's tests. |
 | `presets/eslint/` | ESLint flat-config pieces (role checks only in policies, no direct model drivers, UI rules, HTTP only through its client). |
-| `presets/dependency-cruiser/` | Feature isolation rules and shared-module homes, parameterised by the project's paths. |
+| `presets/dependency-cruiser/` | Feature isolation rules (ADR 0001), shared-module homes (ADR 0009) and ports-and-adapters layers (`portsAndAdaptersRules`, ADR 0011), parameterised by the project's paths. |
 | `presets/spectral/` | The API documentation standard as a Spectral ruleset. |
 | `templates/` | ADR, stack, acceptance, epic and pull-request templates. |
 | `bin/rules-sync.mjs` | Copies the text rules into a project's `.rules/` and checks them in CI. |
@@ -26,16 +27,17 @@ breaks a project silently.
 
 ```bash
 # 1. Pin a version (no registry, no token: the repo is public)
-pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.2.0"
+pnpm add -D -w "github:horsepower-inc/engineering-rules#v2.4.0"
 
-# 2. Copy ADRs, agent rules and templates into .rules/ (commit the result)
+# 2. Copy ADRs, agent rules and templates into .rules/ (commit the result); a factory project adds --profile factory
 pnpm exec rules-sync --agents AGENTS.md
 
 # 3. In CI: fail when .rules/ or the AGENTS.md block drifted from the pinned version
 pnpm exec rules-sync --check --agents AGENTS.md
 ```
 
-`--agents AGENTS.md` writes `agents/AGENTS.base.md` between these markers in the project's AGENTS.md; everything outside
+`--agents AGENTS.md` writes `agents/AGENTS.base.md` and the chosen profile (`--profile service`, the default, or
+`--profile factory`) between these markers in the project's AGENTS.md; everything outside
 them is the project's own:
 
 ```markdown
@@ -81,6 +83,12 @@ it('names only existing tokens', () => {
 // .dependency-cruiser.cjs
 const { featureRules } = require('@horsepower/engineering-rules/dependency-cruiser');
 module.exports = { forbidden: [...featureRules({ root: 'apps/api/src', shared: 'shared' })] };
+```
+
+```js
+// .dependency-cruiser.cjs in a factory project (ADR 0011)
+const { portsAndAdaptersRules } = require('@horsepower/engineering-rules/dependency-cruiser');
+module.exports = { forbidden: [...portsAndAdaptersRules({ root: 'src' })] };
 ```
 
 ```js
