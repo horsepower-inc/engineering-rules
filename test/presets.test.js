@@ -60,3 +60,41 @@ test('uiRules without behaviour packages adds no import rule', async () => {
   const [, outside] = uiRules({ files: ['src/**/*.tsx'] });
   assert.equal(outside.rules['no-restricted-imports'], undefined);
 });
+
+test('sharedModuleRules allows a concern\'s packages only in its home', () => {
+  const { sharedModuleRules } = require('../presets/dependency-cruiser/index.cjs');
+  const rules = sharedModuleRules({
+    root: 'apps/api/src',
+    severity: 'warn',
+    modules: [
+      { name: 'logging', home: ['apps/api/src/shared/providers/logger/'], packages: ['pino'] },
+      { name: 'time', home: ['apps/api/src/shared/helpers/time/'], packages: ['@date-fns/tz'] },
+      { name: 'ids', home: ['apps/api/src/shared/providers/ids/'], packages: [] },
+    ],
+  });
+  assert.deepEqual(rules.map((r) => r.name), ['shared-module-logging', 'shared-module-time']);
+  assert.ok(rules.every((r) => r.severity === 'warn'));
+  const [logging, time] = rules;
+  assert.ok(new RegExp(logging.from.path).test('apps/api/src/reports/reports.service.ts'));
+  assert.ok(new RegExp(logging.from.pathNot[0]).test('apps/api/src/shared/providers/logger/logger.ts'));
+  const to = new RegExp(logging.to.path[0]);
+  assert.ok(to.test('node_modules/pino/lib/pino.js'));
+  assert.ok(to.test('pino'));
+  assert.ok(!to.test('node_modules/pino-pretty/index.js'));
+  assert.ok(new RegExp(time.to.path[0]).test('node_modules/@date-fns/tz/index.js'));
+});
+
+test('sharedModuleRules refuses packages without a home', () => {
+  const { sharedModuleRules } = require('../presets/dependency-cruiser/index.cjs');
+  assert.throws(() => sharedModuleRules({ root: 'src', modules: [{ name: 'queue', home: [], packages: ['bullmq'] }] }), /no home/);
+});
+
+test('httpRules bans fetch and XMLHttpRequest outside the client home', async () => {
+  const { httpRules } = await import('../presets/eslint/index.js');
+  const [config] = httpRules({ files: ['src/**/*.ts'], client: 'src/shared/api/**' });
+  assert.deepEqual(config.ignores, ['src/shared/api/**']);
+  const [level, ...globals] = config.rules['no-restricted-globals'];
+  assert.equal(level, 'error');
+  assert.deepEqual(globals.map((g) => g.name), ['fetch', 'XMLHttpRequest']);
+  assert.deepEqual(Object.keys(config.rules), ['no-restricted-globals']);
+});

@@ -1,4 +1,5 @@
-// ESLint flat-config pieces for ADR 0002 (access) and ADR 0003 (AI gateway). No plugin needed: core rules only.
+// ESLint flat-config pieces for ADR 0002 (access), ADR 0003 (AI gateway), ADR 0008 (UI) and ADR 0009 (shared modules).
+// No plugin needed: core rules only.
 
 /** Role comparisons only in policy files and shared/auth. */
 export function accessRules({ files, allow = ['**/*.policy.ts', '**/shared/auth/**'] }) {
@@ -84,4 +85,26 @@ export function uiRules({ files, designSystem = [], formatModule = [], behaviour
   ];
   configs.push(outside);
   return configs;
+}
+
+/**
+ * ADR 0009. HTTP calls only through the app's HTTP or API client home: no `fetch` or `XMLHttpRequest` elsewhere.
+ * Uses `no-restricted-globals`: give these files no other config for that rule, or the later one wins. `globalThis.fetch`
+ * is not caught here; review item P4 covers it.
+ */
+export function httpRules({ files, client }) {
+  const message = 'Calls go through the HTTP or API client home (ADR 0009): retries, auth refresh and errors live there.';
+  return [
+    {
+      files,
+      ignores: [client].flat(),
+      rules: {
+        'no-restricted-globals': [
+          'error',
+          { name: 'fetch', message },
+          { name: 'XMLHttpRequest', message },
+        ],
+      },
+    },
+  ];
 }

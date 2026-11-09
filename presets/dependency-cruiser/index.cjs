@@ -50,4 +50,27 @@ function featureRules({ root, shared = 'shared', severity = 'error', pureFolder 
   ];
 }
 
-module.exports = { featureRules };
+/**
+ * ADR 0009: the packages of a cross-cutting concern are imported only in that concern's home.
+ * @param {{ root: string, severity?: 'error' | 'warn',
+ *           modules: { name: string, home: string[], packages: string[] }[] }} options
+ *   home: path prefixes relative to the repository root (e.g. 'apps/api/src/shared/providers/logger/');
+ *   packages: the concern's package names from the app's stack ADR (e.g. 'pino'). A module without packages adds no rule.
+ */
+function sharedModuleRules({ root, modules, severity = 'error' }) {
+  const r = esc(root);
+  return modules
+    .filter((m) => m.packages.length > 0)
+    .map((m) => {
+      if (m.home.length === 0) throw new Error(`sharedModuleRules: ${m.name} has packages but no home`);
+      return {
+        name: `shared-module-${m.name}`,
+        comment: `ADR 0009: ${m.name} is done by its shared module (${m.home.join(', ')}); use it, do not import its packages.`,
+        severity,
+        from: { path: `^${r}/`, pathNot: m.home.map((h) => `^${esc(h)}`) },
+        to: { path: m.packages.map((name) => `(^|node_modules/)${esc(name)}(/|$)`) },
+      };
+    });
+}
+
+module.exports = { featureRules, sharedModuleRules };

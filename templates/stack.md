@@ -26,6 +26,26 @@ Shared rule: ADR 0007. One row per concern this app has; versions are pinned in 
 | Testing | | | |
 | Observability | | | |
 
+## Shared modules
+
+ADR 0009: the one home of each cross-cutting concern. Features use these and never rebuild them; reviewers check new code
+against them (`.rules/agents/review.md`).
+
+| Concern | Home (api) | Home (web) | Packages only the home imports |
+| --- | --- | --- | --- |
+| Outside HTTP calls | | n/a | |
+| API client (auth header, refresh, 401, error shape, retry policy) | n/a | | |
+| Auth | | | |
+| Logging, metrics, tracing | | | |
+| Errors | | | |
+| Configuration and secrets | | | |
+| Time (clock, zones, day and month boundaries) | | | |
+| Ids and idempotency | | | |
+| Persistence | | n/a | |
+| Jobs and pipeline | | n/a | |
+| Model calls (ADR 0003) | | n/a | |
+| Validation | | | |
+
 ## Gate options
 
 The packages this app passes to the shared gates:
@@ -35,6 +55,8 @@ webLayers({ root: 'src', store: [], serverData: [], router: [], apiClient: [] })
 featureRules({ root: 'src', frameworkModules: [] })
 uiRules({ files: ['src/**/*.{ts,tsx}'], designSystem: [], formatModule: [], behaviour: [] })
 tokenReferences({ dirs: ['src'], tokens: [], allowPrefixes: [] })
+sharedModuleRules({ root: 'src', modules: [{ name: 'logging', home: ['src/shared/providers/logger/'], packages: [] }] })
+httpRules({ files: ['src/**/*.{ts,tsx}'], client: [] })
 ```
 
 ## Amendments

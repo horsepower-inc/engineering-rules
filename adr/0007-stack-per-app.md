@@ -16,7 +16,7 @@ not by hand, and that each app writes its choices down where agents and reviewer
 2. Each app covers each concern it has with an **existing, maintained library or framework**, not with hand-written
    infrastructure. Hand-written code for a concern is allowed only when the stack ADR says why no library fits.
 3. Each app records its choices in **its own stack ADR** (`templates/stack.md`): one row per concern with the library,
-   the reason and the alternatives considered. Changing a choice is an amendment to that ADR.
+   the reason and the alternatives considered, and the home of each cross-cutting concern (ADR 0009). Changing a choice is an amendment to that ADR.
 4. Each app **pins its own dependencies** in its own manifest and lockfile. The shared rules pin nothing.
 5. The shared gates take the app's packages as options (for example `fitness.webLayers({ store, serverData, router,
    apiClient })`, `featureRules({ frameworkModules })`), filled from the stack ADR.
