@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.1 (2026-11-09)
+
+- ADR 0008 rule 14 and `agents/lanes/web.md` rule 15: a page "matches its design" by structure (regions, order,
+  grouping, hierarchy), components and content, not by equal computed styles. A few pixels of shift or a different
+  line break is accepted; a broken grouping, order or emphasis is not. Style values are accepted once per
+  design-system component; structure is tested with accessibility-tree snapshots per designed state; screenshot
+  baselines are regression guards taken after acceptance. Wording only: no option or check changes.
+
 ## v2.2.0 (2026-11-09)
 
 Shared modules and placement review (ADR 0009). Additive: no existing option or rule changes; the new presets add rules
