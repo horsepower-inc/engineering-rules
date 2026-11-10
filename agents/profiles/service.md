@@ -15,7 +15,8 @@
 
 ### Access, AI and addresses
 
-16. Never compare roles in a controller or service. Declare `@Roles`/`@Policy` on the route; put the rule in the feature's
+16. Never compare roles or permissions in a controller or service. Declare access on the route with the project's auth
+   home (`@Roles`/`@Policy`, a permission declaration, or an explicit open-route marker); put the rule in the feature's
    `*.policy.ts` (ADR 0002).
 17. Every language-model call goes through `shared/ai` (`ai.run`). Never import a model driver or vendor SDK elsewhere; never
    bypass the budget or tracing (ADR 0003).
@@ -24,5 +25,6 @@
 
 ### API contract
 
-19. The OpenAPI contract is the source of truth. A route change changes the contract in the same change, and meets the
-   documentation standard: description, examples, error codes, security (ADR 0004).
+19. There is one OpenAPI contract and it never drifts from the code: written by hand with code generated from it, or
+   generated from the code and committed, as the stack ADR says. A route change changes the contract in the same
+   change, and meets the documentation standard: description, examples, error codes, security (ADR 0004).

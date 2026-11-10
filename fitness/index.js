@@ -95,9 +95,15 @@ export function featureImports({ root, shared = 'shared', cwd = process.cwd() })
   return problems;
 }
 
-/** ADR 0002. No role comparisons outside policy files and the shared auth folder. */
-export function noRoleChecks({ dirs, allow = ['**/*.policy.ts', '**/shared/auth/**'], cwd = process.cwd() }) {
-  const pattern = /\.role\s*[!=]==?|\broles\s*\.\s*includes\s*\(/u;
+/** ADR 0002 default: a principal with `.role` and `roles`. */
+export const roleComparisonPattern = /\.role\s*[!=]==?|\broles\s*\.\s*includes\s*\(/u;
+
+/**
+ * ADR 0002. No role or permission comparisons outside policy files and the auth home. `pattern` is tested per line and
+ * describes the comparisons of this project's principal (ADR 0012); the default is `roleComparisonPattern`.
+ */
+export function noRoleChecks({ dirs, allow = ['**/*.policy.ts', '**/shared/auth/**'], pattern: given = roleComparisonPattern, cwd = process.cwd() }) {
+  const pattern = new RegExp(given.source, given.flags.replace(/[gy]/gu, ''));
   const problems = [];
   for (const dir of dirs) {
     for (const file of sourceFiles(dir, { cwd })) {

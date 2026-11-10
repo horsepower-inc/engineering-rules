@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { accessRules, aiGatewayRules } from '../presets/eslint/index.js';
+import { accessRules, aiGatewayRules, roleComparisonSelectors } from '../presets/eslint/index.js';
 
 const require = createRequire(import.meta.url);
 const { featureRules, portsAndAdaptersRules } = require('../presets/dependency-cruiser/index.cjs');
@@ -11,6 +11,16 @@ test('accessRules ignores policies and shared/auth and restricts role comparison
   assert.deepEqual(config.ignores, ['**/*.policy.ts', '**/shared/auth/**']);
   const [, ...selectors] = config.rules['no-restricted-syntax'];
   assert.equal(selectors.length, 3);
+});
+
+test('accessRules takes the selectors for the project\'s principal shape', () => {
+  const tag = 'BinaryExpression[operator=/^[!=]==?$/] > MemberExpression[property.name="tag"][object.property.name="role"]';
+  const [config] = accessRules({ files: ['src/**/*.ts'], selectors: [...roleComparisonSelectors, tag] });
+  const [level, ...entries] = config.rules['no-restricted-syntax'];
+  assert.equal(level, 'error');
+  assert.equal(entries.length, 4);
+  assert.equal(entries[3].selector, tag);
+  assert.ok(entries.every((entry) => entry.message.includes('ADR 0002')));
 });
 
 test('aiGatewayRules blocks vendor SDKs and driver paths outside the gateway', () => {

@@ -76,6 +76,17 @@ test('noRoleChecks finds comparisons outside policies and shared/auth', () => {
   ]);
 });
 
+test('noRoleChecks takes the pattern for the project\'s principal shape', () => {
+  const cwd = project({
+    'src/reports/reports.service.ts': "if (user.role.tag === 'admin') {}\nif (user.role === null) {}\nif (user.role.tag !== 'coach') {}",
+    'src/reports/reports.policy.ts': "export const read = (p) => p.role.tag === 'admin';",
+  });
+  assert.deepEqual(noRoleChecks({ dirs: ['src'], pattern: /\.role\.tag\s*[!=]==?/g, cwd }), [
+    'src/reports/reports.service.ts:1: role check outside a policy',
+    'src/reports/reports.service.ts:3: role check outside a policy',
+  ]);
+});
+
 test('noDirectDriverImports allows the gateway only', () => {
   const cwd = project({
     'src/shared/ai/drivers/anthropic.ts': "import Anthropic from '@anthropic-ai/sdk';",

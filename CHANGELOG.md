@@ -1,5 +1,34 @@
 # Changelog
 
+## v2.5.0 (2026-11-10)
+
+Rules as outcomes (ADR 0012), from issues #11 to #14. No default of a gate changes; the two new Spectral checks are
+warnings.
+
+- New ADR 0012: a shared rule states an outcome; names of decorators, files and tools are the reference implementation.
+  A project that meets an outcome another way records it in its stack ADR and enforces it with its own gate or test;
+  that is not an exception. A stricter project rule is not a conflict. ADR 0006 rule 4 points to it.
+- `agents/AGENTS.base.md` opening paragraph: follow a stricter or recording project rule; stop and ask only when a
+  project rule would allow what a shared rule forbids.
+- ADR 0002 (#11): every route carries an access declaration the auth home enforces deny-by-default, proven by a project
+  test; roles, a permission, a policy, `@Public` or a reviewed open-route list all conform. `accessRules` takes
+  `selectors`, `noRoleChecks` takes `pattern`; the defaults are unchanged and exported as `roleComparisonSelectors` and
+  `roleComparisonPattern`. Service profile rule 16, `lanes/api.md` rule 8 and review item P2 follow.
+- ADR 0004 (#12): contract-first and code-first both conform when the file is committed, a gate prevents drift and the
+  documentation standard applies to the file. Service profile rule 19 follows. README: what a code-first project fixes
+  in its generator.
+- Spectral preset (#12): `oas3-api-servers` and the new `rules-error-response-problem-json` (4xx and 5xx responses of
+  operations have an `application/problem+json` body) as `warn`; both become `error` in the next major version.
+  `rules-error-problem-json` keeps its check; its description now says what it checks.
+- Base rule 1 (#13): user and customer data is synthetic in every test and fixture; public reference data the product
+  publishes may be read from the environment the stack ADR names under "Acceptance runs". ADR 0010 points to it.
+- Base rule 7 (#14): nine commit types (adds `perf`, `build`, `ci`); a body and trailers may follow unless the project's
+  own rules forbid them.
+- `templates/stack.md`: section "How this app meets the shared rules" (access declaration, principal shape, contract
+  variant, acceptance runs, commit messages) and `accessRules` in the gate options.
+- Upgrading: bump the pin and run `rules-sync --agents AGENTS.md`. Written exceptions for the four cases above move
+  into the stack ADR section and stop being exceptions.
+
 ## v2.4.0 (2026-11-09)
 
 - Profiles: `agents/AGENTS.base.md` keeps the rules for every project; `agents/profiles/service.md` holds the web-app and

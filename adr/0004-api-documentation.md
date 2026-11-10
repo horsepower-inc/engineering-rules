@@ -1,6 +1,6 @@
 # ADR 0004: The OpenAPI contract is complete enough for an outside team
 
-Status: accepted (2026-11-08)
+Status: accepted (2026-11-08), amended (2026-11-10: contract-first and code-first both conform; ADR 0012)
 
 ## Context
 
@@ -9,8 +9,14 @@ authentication. An integration partner could not use them without asking us.
 
 ## Decision
 
-The contract (`openapi.yaml`) stays the source of truth; code is generated from it and a drift test keeps them equal.
-Every contract meets this standard:
+There is one committed OpenAPI contract per API, and a gate keeps it equal to the code. Two variants conform; the
+app's stack ADR records which one it uses (row "API contract and client"):
+
+- **Contract-first:** the file is written by hand, code is generated from it, and a drift test keeps them equal.
+- **Code-first:** the file is generated from the code and committed, and a gate fails when the code changed and the file
+  did not. The file is never edited by hand; a documentation gap is fixed in the code that generates it.
+
+In both variants the committed file is what consumers read, and it meets this standard:
 
 | Part | Required |
 | --- | --- |
@@ -28,4 +34,7 @@ The rendered reference (Redoc or Scalar) is served from the same file.
 
 ## Enforcement
 
-- `presets/spectral/api-docs.yaml` in CI. A project may start it as warnings while it fills the gaps; the target is errors.
+- `presets/spectral/api-docs.yaml` in CI, run on the committed file in both variants. A project may start it as warnings
+  while it fills the gaps; the target is errors.
+- The drift gate is the project's own: a generate-and-compare test (contract-first) or a regenerate-and-diff check
+  (code-first).

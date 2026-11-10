@@ -15,6 +15,7 @@ Rules, linters and fitness tests were copied by hand from one project to the nex
 3. `rules-sync` copies ADRs, agent rules and templates into the project's `.rules/` and writes the base agent rules
    between markers in its `AGENTS.md`. `rules-sync --check` runs in CI and fails on any local edit or drift.
 4. A project's own ADRs and AGENTS.md sections add to the shared rules and never contradict them. A needed exception is
-   proposed here as a change, not made locally.
+   proposed here as a change, not made locally. A stricter project rule, or a different implementation of the same
+   outcome that the project records and enforces, is neither a contradiction nor an exception (ADR 0012).
 5. Versioning: MAJOR when a project's gates can turn red on unchanged code; MINOR for new rules behind an option or
    documentation; PATCH for fixes. Every change has a CHANGELOG entry.
