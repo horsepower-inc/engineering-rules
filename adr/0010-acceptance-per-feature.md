@@ -17,7 +17,8 @@ effect window, without holding the epic open.
    check. An id is never reused; a criterion that no longer applies stays in the file with `status: retired`.
 3. **A check** has one kind:
    - `e2e`: a browser test, named by spec file and test name;
-   - `api`: an API scenario test against the real stack, named by scenario;
+   - `api`: an API scenario test against the real stack, named by scenario (the environment and what tests may read
+     and write there are in the stack ADR, "Acceptance runs"; user data stays synthetic, base rule 1);
    - `metric`: a measured value, named by measure, source and threshold;
    - `manual`: a check a person does, named by owner and what they look at.
 4. **Monitor:** the acceptance file names the feature's lasting metrics: their kind (`usage`, `health` or `outcome`), what is

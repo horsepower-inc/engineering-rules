@@ -12,4 +12,5 @@ In addition to `AGENTS.base.md`.
 5. Repositories return domain types, never database rows, and never decide business rules.
 6. Domain events feed mails and read models only; audit is written by the use case.
 7. Long-running or retriable work is a stage in the job model, not a loop in a request handler.
-8. Every route: `@Roles` or `@Public`, a policy for resource access, a contract entry with description and examples.
+8. Every route: an access declaration (`@Roles`, a permission, or an explicit open-route marker such as `@Public`), a
+   policy for resource access, a contract entry with description and examples.

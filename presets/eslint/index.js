@@ -1,8 +1,18 @@
 // ESLint flat-config pieces for ADR 0002 (access), ADR 0003 (AI gateway), ADR 0008 (UI) and ADR 0009 (shared modules).
 // No plugin needed: core rules only.
 
-/** Role comparisons only in policy files and shared/auth. */
-export function accessRules({ files, allow = ['**/*.policy.ts', '**/shared/auth/**'] }) {
+/** ADR 0002 defaults: a principal with `.role` and `roles`. Extend or replace for another principal shape. */
+export const roleComparisonSelectors = [
+  'BinaryExpression[operator=/^[!=]==?$/] > MemberExpression[property.name="role"]',
+  'CallExpression[callee.property.name="includes"][callee.object.name="roles"]',
+  'CallExpression[callee.property.name="includes"][callee.object.property.name="roles"]',
+];
+
+/**
+ * Role and permission comparisons only in policy files and the auth home. `selectors` are esquery selectors for the
+ * comparisons of this project's principal (ADR 0012); the default is `roleComparisonSelectors`.
+ */
+export function accessRules({ files, allow = ['**/*.policy.ts', '**/shared/auth/**'], selectors = roleComparisonSelectors }) {
   const message = 'Access is decided by policies (ADR 0002): move this check into the feature\'s *.policy.ts.';
   return [
     {
@@ -11,9 +21,7 @@ export function accessRules({ files, allow = ['**/*.policy.ts', '**/shared/auth/
       rules: {
         'no-restricted-syntax': [
           'error',
-          { selector: 'BinaryExpression[operator=/^[!=]==?$/] > MemberExpression[property.name="role"]', message },
-          { selector: 'CallExpression[callee.property.name="includes"][callee.object.name="roles"]', message },
-          { selector: 'CallExpression[callee.property.name="includes"][callee.object.property.name="roles"]', message },
+          ...selectors.map((selector) => ({ selector, message })),
         ],
       },
     },

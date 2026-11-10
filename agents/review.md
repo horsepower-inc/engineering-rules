@@ -20,7 +20,7 @@ ADR records for that concern (ADR 0009, "Shared modules").
 | Id | Look for | Belongs in | ADR |
 | --- | --- | --- | --- |
 | P1 | Business logic in a controller, page or component: an `if` on business state, a calculation, a rule | the service, `domain/`, the policy, or web `model/` | 0001, 0005 |
-| P2 | A role or ownership comparison outside a policy file | the feature's `*.policy.ts`, declared with `@Roles`/`@Policy` | 0002 |
+| P2 | A role, permission or ownership comparison outside a policy file | the feature's `*.policy.ts`, declared on the route through the auth home | 0002 |
 | P3 | A model call outside the AI gateway: a vendor SDK, raw HTTP to a model API, a hand-built prompt loop, its own token count, budget or retry around a model call | `ai.run` in the AI gateway home | 0003 |
 | P4 | HTTP plumbing outside its home: `fetch` or another HTTP client, its own timeout, retry or backoff loop, its own token refresh or 401 handling, its own error mapping | the outside-call home (api) or the one API client and server-state hooks (web) | 0009 |
 | P5 | Time handled in place: time-zone offsets or conversions, `getTimezoneOffset`, adding 24 hours for a day, day or month boundaries, parsing date strings, a calendar date stored as an instant, `new Date()`/`Date.now()` in `domain/` or a component | the time home (clock, zones, boundaries); formatting in the formatting module | 0009, 0008 rule 12 |
