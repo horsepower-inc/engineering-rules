@@ -45,6 +45,7 @@ against them (`.rules/agents/review.md`).
 | Jobs and pipeline | | n/a | |
 | Model calls (ADR 0003) | | n/a | |
 | Validation | | | |
+| Integration protocols (OAuth2, token refresh, webhook signing, pagination) | | n/a | |
 
 ## How this app meets the shared rules
 

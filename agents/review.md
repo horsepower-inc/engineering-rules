@@ -14,6 +14,9 @@ ADR records for that concern (ADR 0009, "Shared modules").
 4. Code that a migration has not moved yet keeps its project's documented layout (the project's AGENTS.md says which):
    its folder is not a finding, but new lines in it still use the shared homes (P3–P10).
 5. Not a placement finding: a test file, a fixture, or a change the ticket's Scope explicitly asks for in that place.
+6. **Look sideways.** For each adapter, client or integration the change touches, open its siblings (the other
+   providers of the same kind). If two of them perform the same protocol steps, or one imports another's module to reuse
+   them, report P15 once for the missing shared module and list every copy; do not report each copy as its own finding.
 
 ## Items
 
@@ -29,7 +32,8 @@ ADR records for that concern (ADR 0009, "Shared modules").
 | P8 | Persistence outside its layer: SQL in a service or controller, a transaction opened outside the service, a tenant filter written by hand | repositories in `adapters/`; transactions and tenant scope from the persistence home | 0001, 0009 |
 | P9 | Background work in place: a loop, sleep or poll in a request handler, its own queue client, retries written inside a stage | a stage run by the jobs home | 0001, 0009 |
 | P10 | Hand-written request or response validation next to the contract | the contract and the validation home | 0004, 0009 |
-| P11 | A copy of a helper, type or function that exists in a home or another feature's `index.ts` | an import of the existing one | 0001 |
+| P11 | A copy of a helper, type or function that exists in a home, another feature's `index.ts`, or a sibling module (the same steps under other names) | an import of the existing one, or one shared function both use | 0001, 0009 |
 | P12 | Web layers crossed: a component imports the API client, store or router; a page holds workflow state or calls the API; `state/` formats text; pure view logic inside a component | `pages/`, `components/`, `state/`, `api/`, `model/` as ADR 0005 assigns | 0005 |
 | P13 | UI built around the design system: a visual literal, a `style` prop, a behaviour-library import, locale formatting in place | the design-system package and the formatting module | 0008 |
 | P14 | Code in the wrong owner: a feature's business object in `shared/` or in another feature, a shared module that names a business object | the feature that owns the object | 0001 |
+| P15 | A protocol implemented per integration: two adapters that each build an authorize URL, exchange or refresh a token, sign or verify a webhook, page through results or map provider errors; one integration importing another's module for those steps; a shared module named after its first user | the integration-protocols home, each integration as configuration of it | 0009 rule 7 |

@@ -4,7 +4,8 @@
 
 11. Code is organised by feature, not by layer (ADR 0001). A change to one capability touches one feature folder.
 12. Import another feature only through its `index.ts`. Never reach into its files, never copy a type or a function to
-   avoid an import.
+   avoid an import, and never copy one between sibling adapters: steps two integrations share go into one shared module
+   (ADR 0009 rule 7).
 13. `shared/` is infrastructure only. Code that names a business object belongs to its feature; a helper with one caller
    stays with the caller.
 14. In a feature: the controller translates HTTP, the service runs the use case and owns the transaction, `domain/` is
