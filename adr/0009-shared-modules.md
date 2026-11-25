@@ -1,6 +1,6 @@
 # ADR 0009: Cross-cutting work has one shared module, features use it, and review checks where code is placed
 
-Status: proposed (2026-11-09)
+Status: proposed (2026-11-09), amended 2026-11-25 (rule 7, shared protocols)
 
 ## Context
 
@@ -33,6 +33,7 @@ bugs and unmet ticket lines, so a misplaced but working piece of code was at mos
    | Jobs and pipeline | the queue client, the stage runner, retries, waits and backoff of a stage |
    | Model calls | the AI gateway (ADR 0003) |
    | Validation | request and response validation against the contract (ADR 0004) |
+   | Integration protocols | one implementation per protocol that several integrations speak: OAuth2 authorize, code exchange and token refresh, webhook signing and verification, pagination, a provider error-to-failure map; each integration is configuration of it (rule 7) |
 
 3. **Features use the home and never rebuild it.** No own retry or backoff loop, token refresh, 401 handling, logger,
    metric registry, environment read, time-zone arithmetic, queue client, transaction handling or model call.
@@ -45,6 +46,13 @@ bugs and unmet ticket lines, so a misplaced but working piece of code was at mos
    **blocker**, like a bug: the author moves the code to its home in the same change. Lines the change does not touch are
    not reported. Code that a migration has not moved yet keeps its project's documented layout; a change that adds to it
    still uses the shared homes of rule 3.
+7. **Shared protocols are implemented once.** When two or more integrations (trackers, payment providers, identity
+   providers, storage) speak the same protocol, the protocol has one implementation in its home, and each integration
+   is configuration of it: endpoints, scopes, how the client authenticates, how the request is encoded, how the answer
+   is read, which steps it supports. A second implementation of the same steps is a finding even when no home exists
+   yet; so is one integration importing another integration's module to reuse its steps. The fix creates or extends the
+   home (rule 4). A shared module is named for what it does, never for its first user (`oauth2-client`, not
+   `jira-oauth` used by three trackers).
 
 ## Enforcement
 
@@ -56,6 +64,8 @@ bugs and unmet ticket lines, so a misplaced but working piece of code was at mos
 - Existing: `aiGatewayRules` (model calls), `accessRules` (role checks), `uiRules` (formatting), `fitness.webLayers`.
 - Rules 3–5 for time-zone arithmetic, retry loops and token refresh written with plain language features have no generic
   gate; the review checklist covers them.
+- Rule 7 has no generic gate: the review compares each integration with its siblings (`agents/review.md`, step 6 and
+  P15).
 
 ## Consequences
 

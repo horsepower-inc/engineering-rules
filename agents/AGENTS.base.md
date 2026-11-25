@@ -31,8 +31,9 @@ them are in `.rules/adr/`.
 
 8. Cross-cutting work has one home per concern, listed in the app's stack ADR (ADR 0009): outside HTTP calls and the API
    client (timeouts, retries, token refresh), auth, logging and metrics, errors, configuration, time and time zones, ids,
-   persistence, jobs, model calls, validation. A feature uses the home and never rebuilds it; if the home lacks
-   something, extend the home in the same change or stop and ask.
+   persistence, jobs, model calls, validation, integration protocols. A feature uses the home and never rebuilds it; if
+   the home lacks something, extend the home in the same change or stop and ask. A protocol several integrations speak
+   (OAuth2, token refresh, webhook signing, pagination) is written once and each integration is configuration of it.
 9. Reviews check every new or changed line against `.rules/agents/review.md` (is the code in the right place?). A
    placement finding in a new or changed line is a blocker, the same as a bug.
 

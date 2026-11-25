@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.6.0 (2026-11-25)
+
+Shared protocols are implemented once (ADR 0009 rule 7). No gate changes; the new rule is checked in review.
+
+- ADR 0009 rule 7: when two or more integrations speak the same protocol (OAuth2 authorize, exchange and refresh,
+  webhook signing, pagination, a provider error map), the protocol has one implementation and each integration is
+  configuration of it. A second copy is a finding even before a home exists, and so is one integration importing
+  another's module for those steps. A shared module is named for what it does, not for its first user. New
+  concern row "Integration protocols".
+- `agents/review.md`: step 6 "Look sideways" compares each touched integration with its siblings; new item P15; P11 also
+  covers copies between sibling modules.
+- `agents/AGENTS.base.md` rule 8, service profile rule 12 and `templates/stack.md` ("Integration protocols" row) follow.
+- Upgrading: bump the pin, run `rules-sync --agents AGENTS.md`, and fill the new row of the stack ADR's "Shared modules".
+
 ## v2.5.0 (2026-11-10)
 
 Rules as outcomes (ADR 0012), from issues #11 to #14. No default of a gate changes; the two new Spectral checks are
